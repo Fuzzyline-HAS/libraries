@@ -1,6 +1,0 @@
-{
-    "configuration": "PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none",
-    "board": "esp32:esp32:ttgo-t1",
-    "port": "COM4",
-    "sketch": "..\\..\\..\\Desktop\\Programing Code\\Yubin_test_folder\\ESP32\\ESP32_ex_ino\\ESP32_prototype_TTGO_T1\\BLE_function.ino"
-}
