@@ -31,7 +31,7 @@
 
 #include "Arduino.h"
 
-#define DEF_PIN 34
+#define DEF_PIN 35
 #define DEF_CONV_FACTOR 1.7
 #define DEF_READS 20
 
