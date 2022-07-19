@@ -131,6 +131,7 @@ void Adafruit_NeoPixel::begin(void) {
     digitalWrite(pin, LOW);
   }
   begun = true;
+  clear();
 }
 
 /*!
@@ -3392,7 +3393,10 @@ uint8_t Adafruit_NeoPixel::getBrightness(void) const { return brightness - 1; }
 /*!
   @brief   Fill the whole NeoPixel strip with 0 / black / off.
 */
-void Adafruit_NeoPixel::clear(void) { memset(pixels, 0, numBytes); }
+void Adafruit_NeoPixel::clear(void) { 
+  memset(pixels, 0, numBytes); 
+  show();
+}
 
 // A 32-bit variant of gamma8() that applies the same function
 // to all components of a packed RGB or WRGB value.
@@ -3437,4 +3441,20 @@ void Adafruit_NeoPixel::rainbow(uint16_t first_hue, int8_t reps,
     if (gammify) color = gamma32(color);
     setPixelColor(i, color);
   }
+}
+
+void Adafruit_NeoPixel::lightColor(int color[3], int num){
+  if(!num){ num = numLEDs; }
+  for(int i=0; i<num; i++){
+    setPixelColor(i, Color(color[0],color[1],color[2]));
+  }
+  show();
+}
+
+void Adafruit_NeoPixel::lightRgb(int r, int g, int b, int num){
+  if(!num){ num = numLEDs; }
+  for(int i=0; i<num; i++){
+      setPixelColor(i, Color(r,g,b));
+  }
+  show();
 }
