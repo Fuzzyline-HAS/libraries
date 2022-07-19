@@ -3444,7 +3444,8 @@ void Adafruit_NeoPixel::rainbow(uint16_t first_hue, int8_t reps,
 }
 
 void Adafruit_NeoPixel::lightColor(int color[3], int num){
-  if(!num){ num = numLEDs; }
+  clear();
+  if(num == -1){ num = numLEDs; }
   for(int i=0; i<num; i++){
     setPixelColor(i, Color(color[0],color[1],color[2]));
   }
@@ -3452,7 +3453,8 @@ void Adafruit_NeoPixel::lightColor(int color[3], int num){
 }
 
 void Adafruit_NeoPixel::lightRgb(int r, int g, int b, int num){
-  if(!num){ num = numLEDs; }
+  clear();
+  if(num == -1){ num = numLEDs; }
   for(int i=0; i<num; i++){
       setPixelColor(i, Color(r,g,b));
   }

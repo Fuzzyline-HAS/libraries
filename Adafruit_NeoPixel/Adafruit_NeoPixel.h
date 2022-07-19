@@ -232,8 +232,8 @@ public:
   void clear(void);
   void updateLength(uint16_t n);
   void updateType(neoPixelType t);
-  void lightColor(int color[3], int num = 0);
-  void lightRgb(int r, int g, int b,int num = 0);
+  void lightColor(int color[3], int num = -1);
+  void lightRgb(int r, int g, int b,int num = -1);
   /*!
     @brief   Check whether a call to show() will start sending data
              immediately or will 'block' for a required interval. NeoPixels
