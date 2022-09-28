@@ -1,3 +1,14 @@
+/**
+ * @file HAS2_Wifi.h
+ * @author 김유빈
+ * @brief 
+ * @version 0.1
+ * @date 2022-09-08
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #ifndef _HAS2_WIFI_
 #define _HAS2_WIFI_
 
@@ -13,6 +24,10 @@ extern HTTPClient http;
 const char ssid[] = "KT_GiGA_6C64";   // wifi 이름
 const char password[] = "ed46zx1198"; // wifi 비밀번호
 
+/**
+ * @brief HAS2 전용 Wifi 라이브러리
+ * 
+ */
 class HAS2_Wifi
 {
 private:
@@ -23,12 +38,17 @@ private:
     String device_name;
     String my_mac;
 
-    void HttpRequest(String string_request);
-    void ReceiveMine(String mac_add);
+    void HttpRequest(String request,String string_request);
+    void ReceiveMine();
+    void JsonParsing(String request, String json);
 
 public:
     HAS2_Wifi();
     HAS2_Wifi(String php);
+
+    iotglove my;
+    iotglove tag;
+
     void Setup(String type);
     void Receive(String device_name);
     void Send(String device_name, String column, String value);

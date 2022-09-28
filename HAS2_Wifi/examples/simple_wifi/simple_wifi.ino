@@ -1,11 +1,6 @@
 #include "HAS2_Wifi.h"
 
-void JsonParsing(String json_s);
-
 HAS2_Wifi has2wifi;
-
-iotglove my;
-iotglove tag;
 
 void setup()
 {

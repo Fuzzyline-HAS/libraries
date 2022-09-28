@@ -1,6 +1,10 @@
 #include "HAS2_Wifi.h"
 #include "Arduino.h"
 
+/**
+ * @brief HAS2_Wifi 기본생성자
+ * 
+ */
 HAS2_Wifi::HAS2_Wifi()
 : HOST_NAME("http://172.30.1.59"),
   PHP_FILE_NAME("/base.php"),
@@ -8,6 +12,11 @@ HAS2_Wifi::HAS2_Wifi()
 {
 }
 
+/**
+ * @brief HAS2_Wifi PHP 변경 생성자
+ * 
+ * @param php 원하는 PHP 파일 입력[/test.php]형식
+ */
 HAS2_Wifi::HAS2_Wifi(String php) 
 : HOST_NAME("http://172.30.1.59"),
   PHP_FILE_NAME(php),
@@ -48,34 +57,63 @@ void HAS2_Wifi::Setup(String type)
   Serial.println(my_mac);
 
   device_type = type;
-  ReceiveMine(my_mac);
+  ReceiveMine();
+
+  Serial.print("my.device_name : "); Serial.println(my.device_name);
 }
 
+/**
+ * @brief 다른 장치의 데이터를 읽음
+ * 
+ * @param device_name 다른 장치의 이름
+ */
 void HAS2_Wifi::Receive(String device_name)
 {
   String string_request = server + "?request=" + "Receive" + "&key=" + device_name;
-  HttpRequest(string_request);
+  HttpRequest("Receive", string_request);
 }
 
+/**
+ * @brief 원하는 장치의 데이터를 수정
+ * 
+ * @param device_name 데이터 변경을 당하는 장치의 이름
+ * @param column 변경할 데이터의 컬럼
+ * @param value 변경할 데이터의 값
+ */
 void HAS2_Wifi::Send(String device_name, String column, String value)
 {
   String string_request = server + "?request=" + "Send" + "&key=" + device_name + "&column=" + column + "&value=" + value;
-  HttpRequest(string_request);
+  HttpRequest("Send", string_request);
 }
 
-void HAS2_Wifi::ReceiveMine(String mac_add)
+/**
+ * @brief [private] 자신의 데이터를 읽음
+ * 
+ */
+void HAS2_Wifi::ReceiveMine()
 {
-  String string_request = server + "?request=" + "ReceiveMine" + "&table=" + device_type + "&MAC=" + my_mac;
-  HttpRequest(string_request);
+  String string_request = server + "?request=" + "ReceiveMine" + "&table=" + device_type + "&mac=" + my_mac;
+  HttpRequest("ReceiveMine", string_request);
 }
 
+/**
+ * @brief 반복적으로 ShfitMachin의 데이터를 읽음
+ * 
+ */
 void HAS2_Wifi::Loop()
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + device_type + "&mac=" + my_mac;
-  HttpRequest(string_request);
+  HttpRequest("Loop" ,string_request);
+  if(my.shift_machine == 1){ ReceiveMine(); my.shift_machine = 0;}
 }
 
-void HAS2_Wifi::HttpRequest(String string_request)
+/**
+ * @brief [private] Http 통신
+ * 
+ * @param request 원하는 명령
+ * @param string_request Http에게 보내는 형식 문자열
+ */
+void HAS2_Wifi::HttpRequest(String request,String string_request)
 {
 
   http.begin(string_request); //요청을 PHP로 전송
@@ -85,7 +123,7 @@ void HAS2_Wifi::HttpRequest(String string_request)
   if (httpcode > 0){
     if (httpcode == HTTP_CODE_OK){
       String payload = http.getString();
-      Serial.println(payload);
+      if(request != "Send") JsonParsing(request, payload);
     }
     else{
       Serial.printf("HTTP GET... code: %d\n", httpcode);
@@ -97,4 +135,45 @@ void HAS2_Wifi::HttpRequest(String string_request)
   http.end();
 }
 
+/**
+ * @brief [private] Json 디코딩하여 원하는 데이터를 읽어옴
+ * 
+ * @param request 원하는 명령
+ * @param json String 형식의 json 파일
+ */
+void HAS2_Wifi::JsonParsing(String request, String json)
+{
+  StaticJsonDocument<500> doc;
+
+  auto error = deserializeJson(doc, json);
+
+  if (error) {
+    Serial.print(F("deserializeJson() failed with code "));
+    Serial.println(error.c_str());
+  }
+
+  if(request == "Loop"){
+    my.shift_machine = doc["ShiftMachine"];
+  }
+  else if(request == "ReceiveMine"){
+    my.device_name = (const char *)doc["DeviceName"];
+    my.role = (const char *)doc["Role"];
+    my.life_chip = doc["LifeChip"];
+    my.taken_chip = doc["TakenChip"];
+    my.max_life_chip = doc["MaxLifeChip"];
+    my.battery_pack = doc["BatteryPack"];
+    my.max_battery_pack = doc["MaxBatteryPack"];
+    my.shift_machine = doc["ShiftMachine"];
+  }
+  if(request == "Receive"){
+    tag.device_name = (const char *)doc["DeviceName"];
+    tag.role = (const char *)doc["Role"];
+    tag.life_chip = doc["LifeChip"];
+    tag.taken_chip = doc["TakenChip"];
+    tag.max_life_chip = doc["MaxLifeChip"];
+    tag.battery_pack = doc["BatteryPack"];
+    tag.max_battery_pack = doc["MaxBatteryPack"];
+    tag.shift_machine = doc["ShiftMachine"];
+  }
+}
 HTTPClient http;
