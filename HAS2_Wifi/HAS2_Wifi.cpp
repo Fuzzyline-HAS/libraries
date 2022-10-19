@@ -1,3 +1,14 @@
+/**
+ * @file HAS2_Wifi.cpp
+ * @author 김유빈
+ * @brief 
+ * @version 1.0
+ * @date 2022-09-28
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include "HAS2_Wifi.h"
 #include "Arduino.h"
 
@@ -15,10 +26,23 @@ HAS2_Wifi::HAS2_Wifi()
 /**
  * @brief HAS2_Wifi PHP 변경 생성자
  * 
- * @param php 원하는 PHP 파일 입력[/test.php]형식
+ * @param php 원하는 PHP 파일 입력["/test.php"]형식
  */
 HAS2_Wifi::HAS2_Wifi(String php) 
 : HOST_NAME("http://172.30.1.59"),
+  PHP_FILE_NAME(php),
+  server(HOST_NAME + PHP_FILE_NAME)
+{
+}
+
+/**
+ * @brief HAS2_Wifi PHP 변경 생성자
+ * 
+ * @param host 로컬호스트 주소 입력["http://172.30.1.59"]형식
+ * @param php 원하는 PHP 파일 입력["/test.php"]형식
+ */
+HAS2_Wifi::HAS2_Wifi(String host, String php) 
+: HOST_NAME(host),
   PHP_FILE_NAME(php),
   server(HOST_NAME + PHP_FILE_NAME)
 {
@@ -59,7 +83,7 @@ void HAS2_Wifi::Setup(String type)
   device_type = type;
   ReceiveMine();
 
-  Serial.print("my.device_name : "); Serial.println(my.device_name);
+  Serial.print("DeviceName : "); Serial.println((const char*)my["DeviceName"]);
 }
 
 /**
@@ -104,7 +128,7 @@ void HAS2_Wifi::Loop()
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + device_type + "&mac=" + my_mac;
   HttpRequest("Loop" ,string_request);
-  if(my.shift_machine == 1){ ReceiveMine(); my.shift_machine = 0;}
+  if((int)shift_machine["ShiftMachine"] >= 1){ ReceiveMine(); }
 }
 
 /**
@@ -135,6 +159,7 @@ void HAS2_Wifi::HttpRequest(String request,String string_request)
   http.end();
 }
 
+
 /**
  * @brief [private] Json 디코딩하여 원하는 데이터를 읽어옴
  * 
@@ -143,37 +168,32 @@ void HAS2_Wifi::HttpRequest(String request,String string_request)
  */
 void HAS2_Wifi::JsonParsing(String request, String json)
 {
-  StaticJsonDocument<500> doc;
-
-  auto error = deserializeJson(doc, json);
-
-  if (error) {
-    Serial.print(F("deserializeJson() failed with code "));
-    Serial.println(error.c_str());
-  }
-
   if(request == "Loop"){
-    my.shift_machine = doc["ShiftMachine"];
+    auto error = deserializeJson(shift_machine, json);
+    if (error) {
+      Serial.print(F("deserializeJson() failed with code "));
+      Serial.println(error.c_str());
+    }
   }
   else if(request == "ReceiveMine"){
-    my.device_name = (const char *)doc["DeviceName"];
-    my.role = (const char *)doc["Role"];
-    my.life_chip = doc["LifeChip"];
-    my.taken_chip = doc["TakenChip"];
-    my.max_life_chip = doc["MaxLifeChip"];
-    my.battery_pack = doc["BatteryPack"];
-    my.max_battery_pack = doc["MaxBatteryPack"];
-    my.shift_machine = doc["ShiftMachine"];
+    auto error = deserializeJson(my, json);
+    if (error) {
+      Serial.print(F("deserializeJson() failed with code "));
+      Serial.println(error.c_str());
+    }
   }
-  if(request == "Receive"){
-    tag.device_name = (const char *)doc["DeviceName"];
-    tag.role = (const char *)doc["Role"];
-    tag.life_chip = doc["LifeChip"];
-    tag.taken_chip = doc["TakenChip"];
-    tag.max_life_chip = doc["MaxLifeChip"];
-    tag.battery_pack = doc["BatteryPack"];
-    tag.max_battery_pack = doc["MaxBatteryPack"];
-    tag.shift_machine = doc["ShiftMachine"];
+  else if(request == "Receive"){
+    auto error = deserializeJson(tag, json);
+    if (error) {
+      Serial.print(F("deserializeJson() failed with code "));
+      Serial.println(error.c_str());
+    }
   }
 }
+
 HTTPClient http;
+StaticJsonDocument<100> shift_machine;
+StaticJsonDocument<500> my;
+StaticJsonDocument<500> tag;
+StaticJsonDocument<500> skill;
+

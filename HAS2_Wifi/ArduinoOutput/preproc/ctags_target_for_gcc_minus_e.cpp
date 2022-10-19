@@ -12,5 +12,8 @@ void setup()
 void loop()
 {
     has2wifi.Loop();
+    Serial.print("DeviceName : "); Serial.println((const char*)my["DeviceName"]);
+    Serial.print("LifeChip : "); Serial.println((int)my["LifeChip"]);
+    Serial.println();
     delay(2000);
 }

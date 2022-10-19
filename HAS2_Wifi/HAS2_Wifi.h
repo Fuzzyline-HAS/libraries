@@ -2,8 +2,8 @@
  * @file HAS2_Wifi.h
  * @author 김유빈
  * @brief 
- * @version 0.1
- * @date 2022-09-08
+ * @version 1.0
+ * @date 2022-09-28
  * 
  * @copyright Copyright (c) 2022
  * 
@@ -19,6 +19,11 @@
 #include <ArduinoJson.h> // wifi 관련라이브러리
 
 extern HTTPClient http;
+
+extern StaticJsonDocument<100> shift_machine;
+extern StaticJsonDocument<500> my;
+extern StaticJsonDocument<500> tag;
+extern StaticJsonDocument<500> skill;
 
 //서버랑 같은 ip 연결
 const char ssid[] = "KT_GiGA_6C64";   // wifi 이름
@@ -45,9 +50,7 @@ private:
 public:
     HAS2_Wifi();
     HAS2_Wifi(String php);
-
-    iotglove my;
-    iotglove tag;
+    HAS2_Wifi(String host, String php);
 
     void Setup(String type);
     void Receive(String device_name);

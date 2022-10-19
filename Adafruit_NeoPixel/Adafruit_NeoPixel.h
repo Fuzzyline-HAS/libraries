@@ -234,6 +234,7 @@ public:
   void updateType(neoPixelType t);
   void lightColor(int color[3], int num = -1);
   void lightRgb(int r, int g, int b,int num = -1);
+  
   /*!
     @brief   Check whether a call to show() will start sending data
              immediately or will 'block' for a required interval. NeoPixels
@@ -372,14 +373,12 @@ public:
   void rainbow(uint16_t first_hue = 0, int8_t reps = 1,
                uint8_t saturation = 255, uint8_t brightness = 255,
                bool gammify = true);
-
-private:
+	
+protected:
 #if defined(ARDUINO_ARCH_RP2040)
   void  rp2040Init(uint8_t pin, bool is800KHz);
   void  rp2040Show(uint8_t pin, uint8_t *pixels, uint32_t numBytes, bool is800KHz);
 #endif
-
-protected:
 #ifdef NEO_KHZ400 // If 400 KHz NeoPixel support enabled...
   bool is800KHz; ///< true if 800 KHz pixels
 #endif
