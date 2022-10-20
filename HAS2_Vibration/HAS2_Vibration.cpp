@@ -69,10 +69,10 @@ void VibrationMotor::Control(const byte* vibration_pattern, int tempo)
   ledcWrite(vibration_motor_number, Intensity(vibration_pattern[repeat]));
 }
 
-void VibrationMotor::On()
+void VibrationMotor::On(int power)
 {
   tempo_complete = false;
-  ledcWrite(vibration_motor_number, 210);
+  ledcWrite(vibration_motor_number, power);
 }
 
 void VibrationMotor::Off()

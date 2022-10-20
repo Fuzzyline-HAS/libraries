@@ -32,7 +32,7 @@ class VibrationMotor{
     void Setup();
     int Intensity(int intensity);
     void Control(const byte vibration_pattern[], int tempo = 0); 
-    void On();
+    void On(int power = vibration_mode3);
     void Off();
 };
 
