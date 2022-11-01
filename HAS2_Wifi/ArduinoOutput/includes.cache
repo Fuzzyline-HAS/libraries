@@ -2,110 +2,110 @@
   {
     "Sourcefile": null,
     "Include": "",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\cores\\esp32"
+    "Includepath": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\cores\\esp32"
   },
   {
     "Sourcefile": null,
     "Include": "",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\variants\\ttgo-t1"
+    "Includepath": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\variants\\ttgo-t1"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "HAS2_Wifi.h",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi"
+    "Includepath": "C:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "WiFi.h",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src"
+    "Includepath": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "HTTPClient.h",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\HTTPClient\\src"
+    "Includepath": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\HTTPClient\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "WiFiClientSecure.h",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFiClientSecure\\src"
+    "Includepath": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFiClientSecure\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "ArduinoJson.h",
-    "Includepath": "C:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\ArduinoJson\\src"
+    "Includepath": "C:\\Users\\admin\\Documents\\Arduino\\libraries\\ArduinoJson\\src"
   },
   {
-    "Sourcefile": "c:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
+    "Sourcefile": "c:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\ArduinoOutput\\sketch\\simple_wifi.ino.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\Documents\\Arduino\\libraries\\HAS2_Wifi\\HAS2_Wifi.cpp",
+    "Sourcefile": "C:\\Users\\admin\\Documents\\Arduino\\libraries\\HAS2_Wifi\\HAS2_Wifi.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFi.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\ETH.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiAP.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFi.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiClient.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiAP.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiGeneric.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiClient.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiMulti.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiGeneric.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiSTA.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiMulti.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiScan.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiSTA.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiServer.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiScan.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFi\\src\\WiFiUdp.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiServer.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\HTTPClient\\src\\HTTPClient.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFi\\src\\WiFiUdp.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFiClientSecure\\src\\WiFiClientSecure.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\HTTPClient\\src\\HTTPClient.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFiClientSecure\\src\\esp_crt_bundle.c",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFiClientSecure\\src\\WiFiClientSecure.cpp",
     "Include": "",
     "Includepath": null
   },
   {
-    "Sourcefile": "C:\\Users\\Fuzzy line Studio\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.4\\libraries\\WiFiClientSecure\\src\\ssl_client.cpp",
+    "Sourcefile": "C:\\Users\\admin\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.6\\libraries\\WiFiClientSecure\\src\\ssl_client.cpp",
     "Include": "",
     "Includepath": null
   }
