@@ -10,7 +10,7 @@
 #define vibration_mode2   130
 #define vibration_mode3   170
 #define vibration_mode4   210
-#define vibration_mode5   250
+#define vibration_mode5   255
 
 const int freq = 5000;
 const int resolution = 8;
@@ -26,13 +26,14 @@ class VibrationMotor{
     int vibration_motor_number;
     int repeat;
     bool tempo_complete;
+
+    int Intensity(int intensity);
     
   public :
     VibrationMotor(int motor_pin,int motor_number);
     void Setup();
-    int Intensity(int intensity);
     void Control(const byte vibration_pattern[], int tempo = 0); 
-    void On(int power = vibration_mode3);
+    void On();
     void Off();
 };
 
