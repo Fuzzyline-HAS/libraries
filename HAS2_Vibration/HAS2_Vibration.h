@@ -6,11 +6,11 @@
 #define ARRAYINDEX(X) sizeof(X) / sizeof(byte)
 
 #define vibration_mode0   0
-#define vibration_mode1   90
-#define vibration_mode2   130
-#define vibration_mode3   170
-#define vibration_mode4   210
-#define vibration_mode5   255
+#define vibration_mode1   50
+#define vibration_mode2   100
+#define vibration_mode3   150
+#define vibration_mode4   200
+#define vibration_mode5   250
 
 const int freq = 5000;
 const int resolution = 8;

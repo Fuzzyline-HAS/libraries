@@ -63,16 +63,24 @@ int VibrationMotor::Intensity(int intensity)
 void VibrationMotor::Control(const byte* vibration_pattern, int tempo)
 {
   uint8_t pattern_index = ARRAYINDEX(vibration_pattern);
-  
-  if(!tempo_complete){ delay(40*tempo); } // 진동이 진동모터 1,2,3순으로 올라가는 느낌을 주기 위해
-  if(repeat < pattern_index - 1){repeat++;} else{repeat = 0;} // 진동 패턴 인덱스를 한칸씩 증가 시킴
+  Serial.println(pattern_index);
+  // if(!tempo_complete){ delay(40*tempo); } // 진동이 진동모터 1,2,3순으로 올라가는 느낌을 주기 위해
+  if(repeat < 12 - 1){repeat++;} else{repeat = 0;} // 진동 패턴 인덱스를 한칸씩 증가 시킴
+  Serial.print("repeat : "); Serial.println(repeat);
+  Serial.print("repeat[] : "); Serial.println(vibration_pattern[repeat]);
   ledcWrite(vibration_motor_number, Intensity(vibration_pattern[repeat]));
+  delay(30);
 }
 
 void VibrationMotor::On()
 {
   tempo_complete = false;
-  ledcWrite(vibration_motor_number, 150);
+  static int i = 10;
+  i = i + 40;
+  ledcWrite(vibration_motor_number, i);
+  delay(1500);
+  if(i > 240) {i = 10;}
+
 }
 
 void VibrationMotor::Off()
