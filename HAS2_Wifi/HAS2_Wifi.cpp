@@ -17,7 +17,7 @@
  *
  */
 HAS2_Wifi::HAS2_Wifi()
-    : HOST_NAME("http://172.30.1.98"),
+    : HOST_NAME("http://172.30.1.44"),
       PHP_FILE_NAME("/has2.php"),
       server(HOST_NAME + PHP_FILE_NAME)
 {
@@ -29,7 +29,7 @@ HAS2_Wifi::HAS2_Wifi()
  * @param php 원하는 PHP 파일 입력["/test.php"]형식
  */
 HAS2_Wifi::HAS2_Wifi(String php)
-    : HOST_NAME("http://172.30.1.98"),
+    : HOST_NAME("http://172.30.1.44"),
       PHP_FILE_NAME(php),
       server(HOST_NAME + PHP_FILE_NAME)
 {
@@ -123,13 +123,14 @@ void HAS2_Wifi::ReceiveMine()
  * @brief 반복적으로 ShfitMachin의 데이터를 읽음
  *
  */
-void HAS2_Wifi::Loop()
+void HAS2_Wifi::Loop(void(*Func)(void))
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
   if ((int)shift_machine["shift_machine"] >= 1)
   {
     ReceiveMine();
+    Func();
   }
 }
 
@@ -200,6 +201,6 @@ void HAS2_Wifi::JsonParsing(String request, String json)
 
 HTTPClient http;
 StaticJsonDocument<100> shift_machine;
-StaticJsonDocument<500> my;
-StaticJsonDocument<500> tag;
+StaticJsonDocument<1000> my;
+StaticJsonDocument<1000> tag;
 StaticJsonDocument<500> skill;

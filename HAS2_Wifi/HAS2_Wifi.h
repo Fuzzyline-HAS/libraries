@@ -20,13 +20,13 @@
 extern HTTPClient http;
 
 extern StaticJsonDocument<100> shift_machine;
-extern StaticJsonDocument<500> my;
-extern StaticJsonDocument<500> tag;
+extern StaticJsonDocument<1000> my;
+extern StaticJsonDocument<1000> tag;
 extern StaticJsonDocument<500> skill;
 
 //서버랑 같은 ip 연결
-const char ssid[] = "KT_GiGA_6C64";   // wifi 이름
-const char password[] = "ed46zx1198"; // wifi 비밀번호
+const char ssid[] = "tp-link";   // wifi 이름
+const char password[] = "Code3824@"; // wifi 비밀번호
 
 /**
  * @brief HAS2 전용 Wifi 라이브러리
@@ -42,7 +42,6 @@ private:
     String my_mac;
 
     void HttpRequest(String request, String string_request);
-    void ReceiveMine();
     void JsonParsing(String request, String json);
 
 public:
@@ -52,8 +51,9 @@ public:
 
     void Setup();
     void Receive(String device_name);
+    void ReceiveMine();
     void Send(String device_name, String column, String value);
-    void Loop();
+    void Loop(void(*Func)(void));
 };
 
 #endif

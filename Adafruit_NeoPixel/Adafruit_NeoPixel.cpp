@@ -3447,7 +3447,7 @@ void Adafruit_NeoPixel::lightColor(int color[3], int num){
   clear();
   if(num == -1){ num = numLEDs; }
   for(int i=0; i<num; i++){
-  setPixelColor(i, Color(color[0],color[1],color[2]));
+  setPixelColor(i, Color(color[0], color[1], color[2]));
   }
   show();
 }
