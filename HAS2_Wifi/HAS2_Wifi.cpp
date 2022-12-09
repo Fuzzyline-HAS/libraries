@@ -10,7 +10,6 @@
  */
 
 #include "HAS2_Wifi.h"
-#include "Arduino.h"
 
 /**
  * @brief HAS2_Wifi 기본생성자
@@ -55,6 +54,46 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
 void HAS2_Wifi::Setup()
 {
   WiFi.begin(ssid, password);
+  Serial.println("Connecting....");
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.println("WiFi connected");
+  }
+  else
+  {
+    Serial.println("WiFi not connected");
+  }
+  delay(1000);
+
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+  my_mac = WiFi.macAddress();
+  Serial.print("MY MAC=");
+  Serial.println(my_mac);
+
+  ReceiveMine();
+
+  Serial.print("DeviceName : ");
+  Serial.println((const char *)my["device_name"]);
+}
+
+/**
+ * @brief Wifi 연결 및 초기설정
+ *
+ */
+void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
+{
+  Serial.print("SSID : "); Serial.println((const char*)new_ssid);
+  Serial.print("PW : "); Serial.println((const char*)new_password);
+  
+  WiFi.begin((const char*)new_ssid, (const char*)new_password);
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
   {

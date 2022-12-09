@@ -50,6 +50,7 @@ public:
     HAS2_Wifi(String host, String php);
 
     void Setup();
+    void Setup(char* new_ssid, char* new_password);
     void Receive(String device_name);
     void ReceiveMP3(String device_name, int value);
     void ReceiveMine();
