@@ -24,6 +24,7 @@ extern StaticJsonDocument<1000> my;
 extern StaticJsonDocument<1000> tag;
 extern StaticJsonDocument<500> skill;
 
+
 //서버랑 같은 ip 연결
 const char ssid[] = "tp-link";   // wifi 이름
 const char password[] = "Code3824@"; // wifi 비밀번호
@@ -39,12 +40,14 @@ private:
     String PHP_FILE_NAME;
     String server;
     String device_name;
-    String my_mac;
+    String my_mac;  
+    
 
     void HttpRequest(String request, String string_request);
     void JsonParsing(String request, String json);
 
 public:
+
     HAS2_Wifi();
     HAS2_Wifi(String php);
     HAS2_Wifi(String host, String php);

@@ -92,7 +92,7 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
 {
   Serial.print("SSID : "); Serial.println((const char*)new_ssid);
   Serial.print("PW : "); Serial.println((const char*)new_password);
-  
+
   WiFi.begin((const char*)new_ssid, (const char*)new_password);
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
