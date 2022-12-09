@@ -51,8 +51,10 @@ public:
 
     void Setup();
     void Receive(String device_name);
+    void ReceiveMP3(String device_name, int value);
     void ReceiveMine();
     void Send(String device_name, String column, String value);
+    void Loop();
     void Loop(void(*Func)(void));
 };
 

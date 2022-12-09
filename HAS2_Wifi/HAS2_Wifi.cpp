@@ -97,6 +97,18 @@ void HAS2_Wifi::Receive(String device_name)
 }
 
 /**
+ * @brief [메인 프로그램 전용] mp3재생 장치의 데이터를 읽음
+ *
+ * @param device_name 장치의 이름
+ * @param value mp3 재생 순서
+ */
+void HAS2_Wifi::ReceiveMP3(String device_name, int value)
+{
+  String string_request = server + "?request=" + "ReceiveMP3" + "&table=" + "device" + "&key=" + device_name + "&value=" + value;
+  HttpRequest("Receive", string_request);
+}
+
+/**
  * @brief 원하는 장치의 데이터를 수정
  *
  * @param device_name 데이터 변경을 당하는 장치의 이름
@@ -110,7 +122,7 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
 }
 
 /**
- * @brief [private] 자신의 데이터를 읽음
+ * @brief 자신의 데이터를 읽음
  *
  */
 void HAS2_Wifi::ReceiveMine()
@@ -119,6 +131,15 @@ void HAS2_Wifi::ReceiveMine()
   HttpRequest("ReceiveMine", string_request);
 }
 
+void HAS2_Wifi::Loop()
+{
+  String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
+  HttpRequest("Loop", string_request);
+  if ((int)shift_machine["shift_machine"] >= 1)
+  {
+    ReceiveMine();
+  }
+}
 /**
  * @brief 반복적으로 ShfitMachin의 데이터를 읽음
  *
