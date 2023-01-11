@@ -80,7 +80,6 @@ void VibrationMotor::On()
   ledcWrite(vibration_motor_number, i);
   delay(1500);
   if(i > 240) {i = 10;}
-
 }
 
 void VibrationMotor::Off()
