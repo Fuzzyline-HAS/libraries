@@ -174,9 +174,12 @@ void HAS2_Wifi::Loop()
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
-  if ((int)shift_machine["shift_machine"] >= 1)
-  {
+  if ((int)shift_machine["shift_machine"] >= 1){
     ReceiveMine();
+  }
+  if((int)shift_machine["watchdog"] >= 1){
+    Send((String)(const char*)my["device_name"], "watchdog", "0");
+    ESP.restart();
   }
 }
 /**
@@ -187,10 +190,13 @@ void HAS2_Wifi::Loop(void(*Func)(void))
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
-  if ((int)shift_machine["shift_machine"] >= 1)
-  {
+  if ((int)shift_machine["shift_machine"] >= 1){
     ReceiveMine();
     Func();
+  }
+  if((int)shift_machine["watchdog"] >= 1){
+    Send((String)(const char*)my["device_name"], "watchdog", "0");
+    ESP.restart();
   }
 }
 
