@@ -53,12 +53,18 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
  */
 void HAS2_Wifi::Setup()
 {
+  int wifiConnectCnt  = 0;
   WiFi.begin(ssid, password);
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    delay(100);
     Serial.print(".");
+    if(wifiConnectCnt++ > 10){
+      Serial.println("Restart ESP");
+      ESP.restart();
+    }
+    
   }
 
   if (WiFi.status() == WL_CONNECTED)
@@ -68,6 +74,7 @@ void HAS2_Wifi::Setup()
   else
   {
     Serial.println("WiFi not connected");
+    
   }
   delay(1000);
 
@@ -208,9 +215,11 @@ void HAS2_Wifi::Loop(void(*Func)(void))
  */
 void HAS2_Wifi::HttpRequest(String request, String string_request)
 {
+//   int httpRequestCnt = 0;
+// ReRequsetHttp:
 
   http.begin(string_request); //요청을 PHP로 전송
-
+  
   int httpcode = http.GET();
 
   if (httpcode > 0)
@@ -230,6 +239,16 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
   else
   {
     Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    // if(httpRequestCnt < 2){
+    //   Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    //   Serial.printf("Rerequest count: %d\n",httpRequestCnt);
+    //   httpRequestCnt++;
+    //   goto ReRequsetHttp;
+    // }
+    // else{
+    //   Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    //   Serial.printf("Maximum request exceed!");
+    // }
   }
   http.end();
 }
