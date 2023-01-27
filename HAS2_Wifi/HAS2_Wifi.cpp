@@ -165,6 +165,7 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
 {
   String string_request = server + "?request=" + "Send" + "&table=" + "device" + "&key=" + device_name + "&column=" + column + "&value=" + value;
   HttpRequest("Send", string_request);
+  delay(100);
 }
 
 /**
@@ -227,9 +228,12 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
     if (httpcode == HTTP_CODE_OK)
     {
       String payload = http.getString();
-      if(request != "Loop")Serial.println(payload);
-      if (request != "Send")
+      if(request != "Loop"){
+        Serial.println(payload);
+      }
+      if (request != "Send"){
         JsonParsing(request, payload);
+      }
     }
     else
     {
