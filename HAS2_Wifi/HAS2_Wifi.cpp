@@ -60,11 +60,10 @@ void HAS2_Wifi::Setup()
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 10){
+    if(wifiConnectCnt++ > 20){
       Serial.println("Restart ESP");
       ESP.restart();
     }
-    
   }
 
   if (WiFi.status() == WL_CONNECTED)
@@ -97,6 +96,7 @@ void HAS2_Wifi::Setup()
  */
 void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
 {
+  int wifiConnectCnt  = 0;
   Serial.print("SSID : "); Serial.println((const char*)new_ssid);
   Serial.print("PW : "); Serial.println((const char*)new_password);
 
@@ -104,8 +104,12 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    delay(100);
     Serial.print(".");
+    if(wifiConnectCnt++ > 20){
+      Serial.println("Restart ESP");
+      ESP.restart();
+    }
   }
 
   if (WiFi.status() == WL_CONNECTED)
