@@ -24,6 +24,10 @@ extern StaticJsonDocument<1000> my;
 extern StaticJsonDocument<1000> tag;
 extern StaticJsonDocument<500> skill;
 
+typedef struct SSID
+{
+    const char* name;
+}SSID;
 
 //서버랑 같은 ip 연결
 const char ssid[] = "tp-link";   // wifi 이름
@@ -54,6 +58,7 @@ public:
 
     void Setup();
     void Setup(char* new_ssid, char* new_password);
+    void Setup(String theme);
     void Receive(String device_name);
     void ReceiveMP3(String device_name, int value);
     void ReceiveMine();

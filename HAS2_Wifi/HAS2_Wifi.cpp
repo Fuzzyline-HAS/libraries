@@ -135,6 +135,58 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
   Serial.println((const char *)my["device_name"]);
 }
 
+void HAS2_Wifi::Setup(String theme)
+{
+  SSID ssid[5] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
+
+  int wifi_list = 0;
+  int wifiConnectCnt = 0;
+  
+  NextWifiList :
+  Serial.println();
+  Serial.println(ssid[wifi_list].name);
+  WiFi.begin(ssid[wifi_list].name, "Code3824@");
+  Serial.println("Connecting....");
+
+  while(WiFi.status() != WL_CONNECTED)
+  {
+    delay(100);
+    Serial.print(".");
+    if(wifiConnectCnt++ > 10){
+      if(++wifi_list > (sizeof(ssid) / sizeof(SSID)) - 1){
+        Serial.println("Restart ESP");
+        ESP.restart();
+      }
+      else{
+        wifiConnectCnt = 0;
+        goto NextWifiList;
+      }
+    }
+  }
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.println("WiFi connected");
+  }
+  else
+  {
+    Serial.println("WiFi not connected");
+  }
+  delay(1000);
+
+  Serial.println("");
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
+  my_mac = WiFi.macAddress();
+  Serial.print("MY MAC=");
+  Serial.println(my_mac);
+
+  ReceiveMine();
+
+  Serial.print("DeviceName : ");
+  Serial.println((const char *)my["device_name"]);
+}
+
 /**
  * @brief 다른 장치의 데이터를 읽음
  *
