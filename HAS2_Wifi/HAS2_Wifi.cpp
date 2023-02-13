@@ -152,7 +152,7 @@ void HAS2_Wifi::Setup(String theme)
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 10){
+    if(wifiConnectCnt++ > 15){
       if(++wifi_list > (sizeof(ssid) / sizeof(SSID)) - 1){
         Serial.println("Restart ESP");
         ESP.restart();
