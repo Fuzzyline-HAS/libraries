@@ -137,7 +137,8 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
 
 void HAS2_Wifi::Setup(String theme)
 {
-  SSID ssid[5] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
+  SSID city_ssid[5] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}};
+  SSID badland_ssid[5] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
 
   int wifi_list = 0;
   int wifiConnectCnt = 0;
@@ -145,14 +146,23 @@ void HAS2_Wifi::Setup(String theme)
   NextWifiList :
   Serial.println();
   Serial.println(ssid[wifi_list].name);
-  WiFi.begin(ssid[wifi_list].name, "Code3824@");
+  if(theme == "city"){
+    WiFi.begin(city_ssid[wifi_list].name, "Code3824@");
+  }
+  else if(theme == "badland"){
+    WiFi.begin(badland_ssid[wifi_list].name, "Code3824@");
+  }
+  
+  my_mac = WiFi.macAddress();
+  Serial.print("MY MAC=");
+  Serial.println(my_mac);
   Serial.println("Connecting....");
 
   while(WiFi.status() != WL_CONNECTED)
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 15){
+    if(wifiConnectCnt++ > 20){
       if(++wifi_list > (sizeof(ssid) / sizeof(SSID)) - 1){
         Serial.println("Restart ESP");
         ESP.restart();
@@ -221,7 +231,6 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
 {
   String string_request = server + "?request=" + "Send" + "&table=" + "device" + "&key=" + device_name + "&column=" + column + "&value=" + value;
   HttpRequest("Send", string_request);
-  delay(100);
 }
 
 /**
