@@ -137,21 +137,25 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
 
 void HAS2_Wifi::Setup(String theme)
 {
-  SSID city_ssid[5] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}, {"tp-link"}};
-  SSID badland_ssid[5] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
+  SSID city_ssid[] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}, {"tp-link"}};
+  SSID badland_ssid[] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
 
   int wifi_list = 0;
   int wifiConnectCnt = 0;
+  int ssid_array_size = 0;
   
   NextWifiList :
   Serial.println();
   if(theme == "city"){
     WiFi.begin(city_ssid[wifi_list].name, "Code3824@");
     Serial.println(city_ssid[wifi_list].name);
+    ssid_array_size = sizeof(city_ssid) / sizeof(SSID) - 1;
+    Serial.print("city 배열 사이즈 : "); Serial.println(ssid_array_size);
   }
   else if(theme == "badland"){
     WiFi.begin(badland_ssid[wifi_list].name, "Code3824@");
     Serial.println(badland_ssid[wifi_list].name);
+    Serial.print("badland 배열 사이즈 : "); ssid_array_size = sizeof(badland_ssid) / sizeof(SSID) - 1;
   }
   
   my_mac = WiFi.macAddress();
@@ -164,7 +168,7 @@ void HAS2_Wifi::Setup(String theme)
     delay(100);
     Serial.print(".");
     if(wifiConnectCnt++ > 20){
-      if(++wifi_list > (sizeof(ssid) / sizeof(SSID)) - 1){
+      if(++wifi_list > ssid_array_size){
         Serial.println("Restart ESP");
         ESP.restart();
       }
