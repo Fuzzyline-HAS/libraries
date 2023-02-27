@@ -137,7 +137,7 @@ void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
 
 void HAS2_Wifi::Setup(String theme)
 {
-  SSID city_ssid[5] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}};
+  SSID city_ssid[5] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}, {"tp-link"}};
   SSID badland_ssid[5] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
 
   int wifi_list = 0;
@@ -145,12 +145,13 @@ void HAS2_Wifi::Setup(String theme)
   
   NextWifiList :
   Serial.println();
-  Serial.println(ssid[wifi_list].name);
   if(theme == "city"){
     WiFi.begin(city_ssid[wifi_list].name, "Code3824@");
+    Serial.println(city_ssid[wifi_list].name);
   }
   else if(theme == "badland"){
     WiFi.begin(badland_ssid[wifi_list].name, "Code3824@");
+    Serial.println(badland_ssid[wifi_list].name);
   }
   
   my_mac = WiFi.macAddress();
