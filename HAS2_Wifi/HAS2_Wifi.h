@@ -18,11 +18,6 @@
 #include <ArduinoJson.h> // wifi 관련 라이브러리
 #include <HTTPUpdate.h>  // OTA 관련 라이브러리
 
-void update_started();
-void update_finished();
-void update_progress(int cur, int total);
-void update_error(int err);
-
 extern HTTPClient http;
 
 extern StaticJsonDocument<100> shift_machine;
@@ -52,6 +47,7 @@ private:
     String device_name;
     String my_mac;  
     
+    friend class HTTPUpdate;
 
     void HttpRequest(String request, String string_request);
     void JsonParsing(String request, String json);
@@ -71,7 +67,11 @@ public:
     void Send(String device_name, String column, String value);
     void Loop();
     void Loop(void(*Func)(void));
-    void FirmwareUpdate(String device_type);
+    void FirmwareUpdate(String device_type, String ip_address = "172.30.1.44");
+    void update_started();
+    void update_finished();
+    void update_progress(int cur, int total);
+    void update_error(int err);
 };
 
 #endif

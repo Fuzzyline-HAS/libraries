@@ -358,7 +358,7 @@ void HAS2_Wifi::JsonParsing(String request, String json)
   }
 }
 
-void HAS2_Wifi::FirmwareUpdate(String device_type)
+void HAS2_Wifi::FirmwareUpdate(String device_type, String ip_address)
 {
   WiFiClient client;
 
@@ -369,7 +369,7 @@ void HAS2_Wifi::FirmwareUpdate(String device_type)
 
   String bin_file_name = "/" + device_type + ".bin";
   Serial.println(bin_file_name);
-  t_httpUpdate_return ret = httpUpdate.update(client, "172.30.1.44", 80, bin_file_name);
+  t_httpUpdate_return ret = httpUpdate.update(client, ip_address, 80, bin_file_name);
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
@@ -377,30 +377,28 @@ void HAS2_Wifi::FirmwareUpdate(String device_type)
       break;
 
     case HTTP_UPDATE_NO_UPDATES:
-      Send((String)(const char*)my["device_name"], "device_state", "setting");
       Serial.println("HTTP_UPDATE_NO_UPDATES");
       break;
 
     case HTTP_UPDATE_OK:
-      Send((String)(const char*)my["device_name"], "device_state", "setting");
       Serial.println("HTTP_UPDATE_OK");
       break;
   }
 }
 
-void update_started() {
+void HAS2_Wifi::update_started(){
   Serial.println("CALLBACK:  HTTP update process started");
 }
 
-void update_finished() {
+void HAS2_Wifi::update_finished(){
   Serial.println("CALLBACK:  HTTP update process finished");
 }
 
-void update_progress(int cur, int total) {
+void HAS2_Wifi::update_progress(int cur, int total){
   Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
 }
 
-void update_error(int err) {
+void HAS2_Wifi::update_error(int err){
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
