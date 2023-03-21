@@ -368,7 +368,8 @@ void HAS2_Wifi::FirmwareUpdate(String device_type)
   httpUpdate.onError(update_error);
 
   String bin_file_name = "/" + device_type + ".bin";
-  t_httpUpdate_return ret = httpUpdate.update(client, "172.30.1.44", bin_file_name);
+  Serial.println(bin_file_name);
+  t_httpUpdate_return ret = httpUpdate.update(client, "172.30.1.80", 80, "/revival_machine.bin");
 
   switch (ret) {
     case HTTP_UPDATE_FAILED:
