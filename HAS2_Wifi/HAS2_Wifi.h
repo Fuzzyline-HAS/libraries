@@ -18,6 +18,11 @@
 #include <ArduinoJson.h> // wifi 관련 라이브러리
 #include <HTTPUpdate.h>  // OTA 관련 라이브러리
 
+void update_started();
+void update_finished();
+void update_progress(int cur, int total);
+void update_error(int err);
+
 extern HTTPClient http;
 
 extern StaticJsonDocument<100> shift_machine;
@@ -68,10 +73,6 @@ public:
     void Loop();
     void Loop(void(*Func)(void));
     void FirmwareUpdate(String device_type, String ip_address = "172.30.1.44");
-    void update_started();
-    void update_finished();
-    void update_progress(int cur, int total);
-    void update_error(int err);
 };
 
 #endif

@@ -276,6 +276,9 @@ void HAS2_Wifi::Loop(void(*Func)(void))
     Send((String)(const char*)my["device_name"], "watchdog", "0");
     ESP.restart();
   }
+  if((String)(const char*)my["device_state"] == "update"){
+    FirmwareUpdate((String)(const char*)my["device_type"], HOST_NAME.substring(7));
+  }
 }
 
 /**
@@ -386,19 +389,21 @@ void HAS2_Wifi::FirmwareUpdate(String device_type, String ip_address)
   }
 }
 
-void HAS2_Wifi::update_started(){
+void update_started(){
   Serial.println("CALLBACK:  HTTP update process started");
 }
 
-void HAS2_Wifi::update_finished(){
+void update_finished(){
+  HAS2_Wifi has2_wifi;
+  has2_wifi.Send((String)(const char*)my["device_name"], "device_state", "setting");
   Serial.println("CALLBACK:  HTTP update process finished");
 }
 
-void HAS2_Wifi::update_progress(int cur, int total){
+void update_progress(int cur, int total){
   Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
 }
 
-void HAS2_Wifi::update_error(int err){
+void update_error(int err){
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
