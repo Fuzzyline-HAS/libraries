@@ -22,17 +22,17 @@ HAS2_Wifi::HAS2_Wifi()
 {
 }
 
-/**
- * @brief HAS2_Wifi PHP 변경 생성자
- *
- * @param php 원하는 PHP 파일 입력["/test.php"]형식
- */
-HAS2_Wifi::HAS2_Wifi(String php)
-    : HOST_NAME("http://172.30.1.44"),
-      PHP_FILE_NAME(php),
-      server(HOST_NAME + PHP_FILE_NAME)
-{
-}
+// /**
+//  * @brief HAS2_Wifi PHP 변경 생성자
+//  *
+//  * @param php 원하는 PHP 파일 입력["/test.php"]형식
+//  */
+// HAS2_Wifi::HAS2_Wifi(String php)
+//     : HOST_NAME("http://172.30.1.44"),
+//       PHP_FILE_NAME(php),
+//       server(HOST_NAME + PHP_FILE_NAME)
+// {
+// }
 
 /**
  * @brief HAS2_Wifi PHP 변경 생성자

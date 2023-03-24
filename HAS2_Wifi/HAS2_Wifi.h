@@ -60,8 +60,8 @@ private:
 public:
 
     HAS2_Wifi();
-    HAS2_Wifi(String php);
-    HAS2_Wifi(String host, String php);
+    // HAS2_Wifi(String php);
+    HAS2_Wifi(String host, String php = "/has2.php");
 
     void Setup();
     void Setup(char* new_ssid, char* new_password);
