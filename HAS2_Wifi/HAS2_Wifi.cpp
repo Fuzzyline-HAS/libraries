@@ -53,14 +53,15 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
  */
 void HAS2_Wifi::Setup()
 {
-  int wifiConnectCnt  = 0;
+  int wifiConnectCnt = 0;
   WiFi.begin(ssid, password);
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 20){
+    if (wifiConnectCnt++ > 20)
+    {
       Serial.println("Restart ESP");
       ESP.restart();
     }
@@ -73,7 +74,6 @@ void HAS2_Wifi::Setup()
   else
   {
     Serial.println("WiFi not connected");
-    
   }
   delay(1000);
 
@@ -94,19 +94,22 @@ void HAS2_Wifi::Setup()
  * @brief Wifi 연결 및 초기설정
  *
  */
-void HAS2_Wifi::Setup(char* new_ssid, char* new_password)
+void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 {
-  int wifiConnectCnt  = 0;
-  Serial.print("SSID : "); Serial.println((const char*)new_ssid);
-  Serial.print("PW : "); Serial.println((const char*)new_password);
+  int wifiConnectCnt = 0;
+  Serial.print("SSID : ");
+  Serial.println((const char *)new_ssid);
+  Serial.print("PW : ");
+  Serial.println((const char *)new_password);
 
-  WiFi.begin((const char*)new_ssid, (const char*)new_password);
+  WiFi.begin((const char *)new_ssid, (const char *)new_password);
   Serial.println("Connecting....");
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 20){
+    if (wifiConnectCnt++ > 20)
+    {
       Serial.println("Restart ESP");
       ESP.restart();
     }
@@ -143,36 +146,43 @@ void HAS2_Wifi::Setup(String theme)
   int wifi_list = 0;
   int wifiConnectCnt = 0;
   int ssid_array_size = 0;
-  
-  NextWifiList :
+
+NextWifiList:
   Serial.println();
-  if(theme == "city"){
+  if (theme == "city")
+  {
     WiFi.begin(city_ssid[wifi_list].name, "Code3824@");
     Serial.println(city_ssid[wifi_list].name);
     ssid_array_size = sizeof(city_ssid) / sizeof(SSID) - 1;
-    Serial.print("city 배열 사이즈 : "); Serial.println(ssid_array_size);
+    Serial.print("city 배열 사이즈 : ");
+    Serial.println(ssid_array_size);
   }
-  else if(theme == "badland"){
+  else if (theme == "badland")
+  {
     WiFi.begin(badland_ssid[wifi_list].name, "Code3824@");
     Serial.println(badland_ssid[wifi_list].name);
-    Serial.print("badland 배열 사이즈 : "); ssid_array_size = sizeof(badland_ssid) / sizeof(SSID) - 1;
+    Serial.print("badland 배열 사이즈 : ");
+    ssid_array_size = sizeof(badland_ssid) / sizeof(SSID) - 1;
   }
-  
+
   my_mac = WiFi.macAddress();
   Serial.print("MY MAC=");
   Serial.println(my_mac);
   Serial.println("Connecting....");
 
-  while(WiFi.status() != WL_CONNECTED)
+  while (WiFi.status() != WL_CONNECTED)
   {
     delay(100);
     Serial.print(".");
-    if(wifiConnectCnt++ > 20){
-      if(++wifi_list > ssid_array_size){
+    if (wifiConnectCnt++ > 20)
+    {
+      if (++wifi_list > ssid_array_size)
+      {
         Serial.println("Restart ESP");
         ESP.restart();
       }
-      else{
+      else
+      {
         wifiConnectCnt = 0;
         goto NextWifiList;
       }
@@ -239,6 +249,19 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
 }
 
 /**
+ * @brief
+ *
+ * @param affected_device_name 영향을 받는 장치
+ * @param situation  상황
+ */
+void HAS2_Wifi::Situation(String affected_device_name, String situation)
+{
+  String my_device_name = (String)(const char *)my["device_name"];
+  String string_request = server + "?request=" + "Situation" + "&table=" + situation + "&key=" + my_device_name + "&value=" + affected_device_name;
+  HttpRequest("Send", string_request);
+}
+
+/**
  * @brief 자신의 데이터를 읽음
  *
  */
@@ -248,36 +271,47 @@ void HAS2_Wifi::ReceiveMine()
   HttpRequest("ReceiveMine", string_request);
 }
 
-void HAS2_Wifi::Loop()
-{
-  String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
-  HttpRequest("Loop", string_request);
-  if ((int)shift_machine["shift_machine"] >= 1){
-    ReceiveMine();
-  }
-  if((int)shift_machine["watchdog"] >= 1){
-    Send((String)(const char*)my["device_name"], "watchdog", "0");
-    ESP.restart();
-  }
-}
 /**
  * @brief 반복적으로 ShfitMachin의 데이터를 읽음
  *
  */
-void HAS2_Wifi::Loop(void(*Func)(void))
+void HAS2_Wifi::Loop()
 {
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
-  if ((int)shift_machine["shift_machine"] >= 1){
+  if ((int)shift_machine["shift_machine"] >= 1)
+  {
+    ReceiveMine();
+  }
+  if ((int)shift_machine["watchdog"] >= 1)
+  {
+    Send((String)(const char *)my["device_name"], "watchdog", "0");
+    ESP.restart();
+  }
+}
+
+/**
+ * @brief 반복적으로 ShfitMachin의 데이터를 읽음
+ *
+ * @param Func shift_machine가 1 이상이 되면 실행되는 함수포인터
+ */
+void HAS2_Wifi::Loop(void (*Func)(void))
+{
+  String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
+  HttpRequest("Loop", string_request);
+  if ((int)shift_machine["shift_machine"] >= 1)
+  {
     ReceiveMine();
     Func();
   }
-  if((int)shift_machine["watchdog"] >= 1){
-    Send((String)(const char*)my["device_name"], "watchdog", "0");
+  if ((int)shift_machine["watchdog"] >= 1)
+  {
+    Send((String)(const char *)my["device_name"], "watchdog", "0");
     ESP.restart();
   }
-  if((String)(const char*)my["device_state"] == "update"){
-    FirmwareUpdate((String)(const char*)my["device_type"], HOST_NAME.substring(7));
+  if ((String)(const char *)my["device_state"] == "update")
+  {
+    FirmwareUpdate((String)(const char *)my["device_type"], HOST_NAME.substring(7));
   }
 }
 
@@ -289,11 +323,11 @@ void HAS2_Wifi::Loop(void(*Func)(void))
  */
 void HAS2_Wifi::HttpRequest(String request, String string_request)
 {
-//   int httpRequestCnt = 0;
-// ReRequsetHttp:
+  //   int httpRequestCnt = 0;
+  // ReRequsetHttp:
 
-  http.begin(string_request); //요청을 PHP로 전송
-  
+  http.begin(string_request); // 요청을 PHP로 전송
+
   int httpcode = http.GET();
 
   if (httpcode > 0)
@@ -301,10 +335,12 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
     if (httpcode == HTTP_CODE_OK)
     {
       String payload = http.getString();
-      if(request != "Loop"){
+      if (request != "Loop")
+      {
         Serial.println(payload);
       }
-      if (request != "Send"){
+      if (request != "Send")
+      {
         JsonParsing(request, payload);
       }
     }
@@ -338,23 +374,29 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
  */
 void HAS2_Wifi::JsonParsing(String request, String json)
 {
-  if(request == "Loop"){
+  if (request == "Loop")
+  {
     auto error = deserializeJson(shift_machine, json);
-    if (error) {
+    if (error)
+    {
       Serial.print(F("deserializeJson() failed with code "));
       Serial.println(error.c_str());
     }
   }
-  else if(request == "ReceiveMine"){
+  else if (request == "ReceiveMine")
+  {
     auto error = deserializeJson(my, json);
-    if (error) {
+    if (error)
+    {
       Serial.print(F("deserializeJson() failed with code "));
       Serial.println(error.c_str());
     }
   }
-  else if(request == "Receive"){
+  else if (request == "Receive")
+  {
     auto error = deserializeJson(tag, json);
-    if (error) {
+    if (error)
+    {
       Serial.print(F("deserializeJson() failed with code "));
       Serial.println(error.c_str());
     }
@@ -374,39 +416,45 @@ void HAS2_Wifi::FirmwareUpdate(String device_type, String ip_address)
   Serial.println(bin_file_name);
   t_httpUpdate_return ret = httpUpdate.update(client, ip_address, 80, bin_file_name);
 
-  switch (ret) {
-    case HTTP_UPDATE_FAILED:
-      Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
-      break;
+  switch (ret)
+  {
+  case HTTP_UPDATE_FAILED:
+    Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+    break;
 
-    case HTTP_UPDATE_NO_UPDATES:
-      Serial.println("HTTP_UPDATE_NO_UPDATES");
-      break;
+  case HTTP_UPDATE_NO_UPDATES:
+    Serial.println("HTTP_UPDATE_NO_UPDATES");
+    break;
 
-    case HTTP_UPDATE_OK:
-      Serial.println("HTTP_UPDATE_OK");
-      break;
+  case HTTP_UPDATE_OK:
+    Serial.println("HTTP_UPDATE_OK");
+    break;
   }
 }
 
-void update_started(){
+void update_started()
+{
   Serial.println("CALLBACK:  HTTP update process started");
 }
 
-void update_finished(){
+void update_finished()
+{
   HAS2_Wifi has2_wifi;
-  has2_wifi.Send((String)(const char*)my["device_name"], "device_state", "setting");
+  has2_wifi.Send((String)(const char *)my["device_name"], "device_state", "setting");
   Serial.println("CALLBACK:  HTTP update process finished");
 }
 
-void update_progress(int cur, int total){
+void update_progress(int cur, int total)
+{
   Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
 }
 
-void update_error(int err){
+void update_error(int err)
+{
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
+// 전역변수 선언
 HTTPClient http;
 StaticJsonDocument<100> shift_machine;
 StaticJsonDocument<1000> my;
