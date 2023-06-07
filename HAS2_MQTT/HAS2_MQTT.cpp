@@ -162,10 +162,12 @@ void HAS2_MQTT::AddSubscirbe(String topic)
  */
 void HAS2_MQTT::ReadSubscirbe()
 {
+  if(!OTA){
     if (!client.connected()) {
         connect();
     }
     client.loop();
+  }
 }
 
 /**
@@ -178,10 +180,13 @@ void HAS2_MQTT::FirmwareUpdate(String device_type, String ip_address)
 {
   WiFiClient client;
 
+  OTA = true;
+  
   httpUpdate.onStart(update_started);
   httpUpdate.onEnd(update_finished);
   httpUpdate.onProgress(update_progress);
   httpUpdate.onError(update_error);
+
 
   String bin_file_name = "/" + device_type + ".bin";
   Serial.println(bin_file_name);

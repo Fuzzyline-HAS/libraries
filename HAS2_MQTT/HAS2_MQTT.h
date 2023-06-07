@@ -24,6 +24,7 @@ class HAS2_MQTT
     String mac_address;         // ESP32의 맥주소
     friend class HTTPUpdate;    
     void connect();
+    bool OTA;
 
     public:
     void Setup(MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");
@@ -36,7 +37,6 @@ class HAS2_MQTT
     static void update_finished();
     static void update_progress(int cur, int total);
     static void update_error(int err);
-
 };
 
 #endif

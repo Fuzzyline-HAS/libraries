@@ -11,9 +11,10 @@ HAS2_MQTT	KEYWORD1
 #######################################	
 
 Setup			KEYWORD2
-Receive			KEYWORD2
-Send			KEYWORD2
-Loop			KEYWORD2
+ReadSubscirbe	KEYWORD2
+Publish			KEYWORD2
+AddSubscirbe	KEYWORD2
+FirmwareUpdate  KEYWORD2
 
 my              KEYWORD2
 tag             KEYWORD2

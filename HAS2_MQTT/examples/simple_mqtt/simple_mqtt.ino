@@ -2,8 +2,6 @@
 
 HAS2_MQTT has2_mqtt;
 
-bool OTA = false;
-
 /**
  * @brief 장치에 맞게 각자 코드에 만들어야 하는 함수 / callback 함수여서 topic, payload, length 적어놓기만 하면 됌
  * 
@@ -30,7 +28,6 @@ void callback(char* topic, byte* payload, unsigned int length)
 
     if(input_data == "OTA"){
         has2_mqtt.FirmwareUpdate("iotglove");
-        OTA = true;
     }
 }
 
@@ -42,7 +39,5 @@ void setup()
 
 void loop()
 {
-    if(!OTA){
-        has2_mqtt.ReadSubscirbe();
-    }
+    has2_mqtt.ReadSubscirbe();
 }
