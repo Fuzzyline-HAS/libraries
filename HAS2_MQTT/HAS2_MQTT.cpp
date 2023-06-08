@@ -29,8 +29,12 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
 {
     int wifiConnectCnt  = 0;
     WiFi.begin("tp-link", "Code3824@");
+
+    mac_address = WiFi.macAddress();
+    Serial.print("MY MAC = ");
+    Serial.println(mac_address);
+
     Serial.println("Connecting....");
-    
     while (WiFi.status() != WL_CONNECTED){
         delay(100);
         Serial.print(".");
@@ -51,9 +55,6 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
 
     Serial.print("Connected to WiFi network with IP Address: ");
     Serial.println(WiFi.localIP());
-    mac_address = WiFi.macAddress();
-    Serial.print("MY MAC = ");
-    Serial.println(mac_address);
     my_topic = mac_address.substring(12);
     Serial.print("MY TOPIC = ");
     Serial.println(my_topic);
@@ -75,8 +76,12 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
 {
     int wifiConnectCnt  = 0;
     WiFi.begin(new_ssid, new_password);
+
+    mac_address = WiFi.macAddress();
+    Serial.print("MY MAC = ");
+    Serial.println(mac_address);
+
     Serial.println("Connecting....");
-    
     while (WiFi.status() != WL_CONNECTED){
         delay(100);
         Serial.print(".");
@@ -97,10 +102,10 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
 
     Serial.print("Connected to WiFi network with IP Address: ");
     Serial.println(WiFi.localIP());
-    mac_address = WiFi.macAddress();
-    Serial.print("MY MAC = ");
-    Serial.println(mac_address);
+    
     my_topic = mac_address.substring(12);
+    Serial.print("MY TOPIC = ");
+    Serial.println(my_topic);
 
     client.setServer(sever, 1883);
     client.setCallback(callback);
