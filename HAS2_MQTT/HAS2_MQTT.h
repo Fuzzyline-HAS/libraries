@@ -25,6 +25,7 @@ class HAS2_MQTT
     friend class HTTPUpdate;    
     void connect();
     bool OTA;
+    bool wifi_connected;
 
     public:
     void Setup(MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");

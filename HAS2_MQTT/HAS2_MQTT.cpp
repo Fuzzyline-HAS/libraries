@@ -38,14 +38,16 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
     while (WiFi.status() != WL_CONNECTED){
         delay(100);
         Serial.print(".");
-        if(wifiConnectCnt++ > 10){
-            Serial.println("Restart ESP");
-            ESP.restart();
+        if(wifiConnectCnt++ > 25){
+            // Serial.println("Restart ESP");
+            // ESP.restart();
+            wifi_connected = false;
         }
     }
 
     if (WiFi.status() == WL_CONNECTED){
         Serial.println("WiFi connected");
+        wifi_connected = true;
     }
     else{
         Serial.println("WiFi not connected");
@@ -59,9 +61,11 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
     Serial.print("MY TOPIC = ");
     Serial.println(my_topic);
 
-    client.setServer(sever, 1883);
-    client.setCallback(callback);
-    connect();
+    if(wifi_connected){
+      client.setServer(sever, 1883);
+      client.setCallback(callback);
+      connect();
+    }
 }
 
 /**
@@ -85,14 +89,16 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
     while (WiFi.status() != WL_CONNECTED){
         delay(100);
         Serial.print(".");
-        if(wifiConnectCnt++ > 10){
-            Serial.println("Restart ESP");
-            ESP.restart();
+        if(wifiConnectCnt++ > 25){
+            // Serial.println("Restart ESP");
+            // ESP.restart();
+            wifi_connected = false;
         }
     }
 
     if (WiFi.status() == WL_CONNECTED){
         Serial.println("WiFi connected");
+        wifi_connected = true;
     }
     else{
         Serial.println("WiFi not connected");
@@ -102,14 +108,15 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
 
     Serial.print("Connected to WiFi network with IP Address: ");
     Serial.println(WiFi.localIP());
-    
     my_topic = mac_address.substring(12);
     Serial.print("MY TOPIC = ");
     Serial.println(my_topic);
 
-    client.setServer(sever, 1883);
-    client.setCallback(callback);
-    connect();
+    if(wifi_connected){
+      client.setServer(sever, 1883);
+      client.setCallback(callback);
+      connect();
+    }
 }
 /**
  * @brief [private] mosquitto broker와 연결
@@ -167,7 +174,7 @@ void HAS2_MQTT::AddSubscirbe(String topic)
  */
 void HAS2_MQTT::ReadSubscirbe()
 {
-  if(!OTA){
+  if(!OTA && wifi_connected){
     if (!client.connected()) {
         connect();
     }
