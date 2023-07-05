@@ -90,6 +90,33 @@ void HAS2_Wifi::Setup()
   Serial.println((const char *)my["device_name"]);
 }
 
+void HAS2_Wifi::Connect()
+{
+  int try_loop = 0;
+  ConnetGoTo:
+  if(WiFi.status() != WL_CONNECTED){
+    int try_num = 0;
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED)
+    {
+      delay(100);
+      Serial.print(".");
+      if(try_num++ > 20){
+        Serial.println();
+        // if(try_loop++ > 2){
+        //   Serial.println("Restart ESP");
+        //   ESP.restart();
+        // }
+        goto ConnetGoTo;
+      }
+    }
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      Serial.println("WiFi connected");
+    }
+  }
+}
+
 /**
  * @brief Wifi 연결 및 초기설정
  *
