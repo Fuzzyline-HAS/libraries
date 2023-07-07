@@ -90,23 +90,29 @@ void HAS2_Wifi::Setup()
   Serial.println((const char *)my["device_name"]);
 }
 
-void HAS2_Wifi::Connect()
+void HAS2_Wifi::Connect(String theme)
 {
   int try_loop = 0;
+
   ConnetGoTo:
   if(WiFi.status() != WL_CONNECTED){
     int try_num = 0;
-    WiFi.begin(ssid, password);
+    if(theme == "city"){
+      WiFi.begin("tp-link", "Code3824@");
+    }
+    else if(theme == "badland"){
+      WiFi.begin("main_badland", "Code3824@");
+    }
     while (WiFi.status() != WL_CONNECTED)
     {
       delay(100);
       Serial.print(".");
       if(try_num++ > 20){
         Serial.println();
-        // if(try_loop++ > 2){
-        //   Serial.println("Restart ESP");
-        //   ESP.restart();
-        // }
+        if(try_loop++ > 2){
+          Serial.println("Restart ESP");
+          ESP.restart();
+        }
         goto ConnetGoTo;
       }
     }

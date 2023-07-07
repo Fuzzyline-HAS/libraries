@@ -65,7 +65,7 @@ public:
     void Setup();
     void Setup(char *new_ssid, char *new_password);
     void Setup(String theme);
-    void Connect();
+    void Connect(String theme);
     void Receive(String device_name);
     void ReceiveMP3(String device_name, int value);
     void ReceiveMine();
