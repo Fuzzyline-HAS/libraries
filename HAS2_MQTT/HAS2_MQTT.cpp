@@ -10,24 +10,24 @@
 
 #include <HAS2_MQTT.h>
 
-WiFiClient espClient;            
-PubSubClient client(espClient);   
-unsigned long lastMsg = 0;        
-#define MSG_BUFFER_SIZE	(50)      
-char msg[MSG_BUFFER_SIZE];        
-int value = 0;        
+WiFiClient espClient;
+PubSubClient client(espClient);
+unsigned long lastMsg = 0;
+#define MSG_BUFFER_SIZE (50)
+char msg[MSG_BUFFER_SIZE];
+int value = 0;
 
-String my_topic;                  // 자신의 mac 주소 기반 topic 
+String my_topic; // 자신의 mac 주소 기반 topic
 
 /**
  * @brief Wifi, MQTT 서버 연결
- * 
- * @param MQTT_CALLBACK_SIGNATURE #define으로 형태를 지정한 callback 함수포인터 
+ *
+ * @param MQTT_CALLBACK_SIGNATURE #define으로 형태를 지정한 callback 함수포인터
  * @param sever 연결 해야하는 mosqitto broker의 서버 주소 [default : 172.30.1.44]
  */
-void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
+void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char *sever)
 {
-    int wifiConnectCnt  = 0;
+    int wifiConnectCnt = 0;
     WiFi.begin("tp-link", "Code3824@");
 
     mac_address = WiFi.macAddress();
@@ -35,24 +35,28 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
     Serial.println(mac_address);
 
     Serial.println("Connecting....");
-    while (WiFi.status() != WL_CONNECTED){
+    while (WiFi.status() != WL_CONNECTED)
+    {
         delay(100);
         Serial.print(".");
-        if(wifiConnectCnt++ > 25){
+        if (wifiConnectCnt++ > 25)
+        {
             // Serial.println("Restart ESP");
             // ESP.restart();
             wifi_connected = false;
         }
     }
 
-    if (WiFi.status() == WL_CONNECTED){
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.println("WiFi connected");
         wifi_connected = true;
     }
-    else{
+    else
+    {
         Serial.println("WiFi not connected");
     }
-    
+
     delay(1000);
 
     Serial.print("Connected to WiFi network with IP Address: ");
@@ -61,24 +65,25 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char* sever)
     Serial.print("MY TOPIC = ");
     Serial.println(my_topic);
 
-    if(wifi_connected){
-      client.setServer(sever, 1883);
-      client.setCallback(callback);
-      connect();
+    if (wifi_connected)
+    {
+        client.setServer(sever, 1883);
+        client.setCallback(callback);
+        connect();
     }
 }
 
 /**
  * @brief Wifi, MQTT 서버 연결
- * 
+ *
  * @param new_ssid  Wifi SSID
  * @param new_password  Wifi Password
- * @param MQTT_CALLBACK_SIGNATURE #define으로 형태를 지정한 callback 함수포인터 
+ * @param MQTT_CALLBACK_SIGNATURE #define으로 형태를 지정한 callback 함수포인터
  * @param sever 연결 해야하는 mosquitto broker의 서버 주소 [default : 172.30.1.44]
  */
-void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATURE, const char* sever)
+void HAS2_MQTT::Setup(char *new_ssid, char *new_password, MQTT_CALLBACK_SIGNATURE, const char *sever)
 {
-    int wifiConnectCnt  = 0;
+    int wifiConnectCnt = 0;
     WiFi.begin(new_ssid, new_password);
 
     mac_address = WiFi.macAddress();
@@ -86,24 +91,28 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
     Serial.println(mac_address);
 
     Serial.println("Connecting....");
-    while (WiFi.status() != WL_CONNECTED){
+    while (WiFi.status() != WL_CONNECTED)
+    {
         delay(100);
         Serial.print(".");
-        if(wifiConnectCnt++ > 25){
+        if (wifiConnectCnt++ > 25)
+        {
             // Serial.println("Restart ESP");
             // ESP.restart();
             wifi_connected = false;
         }
     }
 
-    if (WiFi.status() == WL_CONNECTED){
+    if (WiFi.status() == WL_CONNECTED)
+    {
         Serial.println("WiFi connected");
         wifi_connected = true;
     }
-    else{
+    else
+    {
         Serial.println("WiFi not connected");
     }
-    
+
     delay(1000);
 
     Serial.print("Connected to WiFi network with IP Address: ");
@@ -112,132 +121,153 @@ void HAS2_MQTT::Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATUR
     Serial.print("MY TOPIC = ");
     Serial.println(my_topic);
 
-    if(wifi_connected){
-      client.setServer(sever, 1883);
-      client.setCallback(callback);
-      connect();
+    if (wifi_connected)
+    {
+        client.setServer(sever, 1883);
+        client.setCallback(callback);
+        Connect();
     }
 }
 /**
  * @brief [private] mosquitto broker와 연결
- * 
+ *
  */
-void  HAS2_MQTT::connect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Create a random client ID
-    String clientId = "ESP32_";
-    clientId += my_topic;
-    // Attempt to connect
-    if (client.connect(clientId.c_str())) {
-      Serial.println("connected");
-      AddSubscirbe("ALL");
-      AddSubscirbe(my_topic);
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
+void HAS2_MQTT::Connect()
+{
+    // Loop until we're reconnected
+    while (!client.connected())
+    {
+        Serial.print("Attempting MQTT connection...");
+        // Create a random client ID
+        String clientId = "ESP32_";
+        clientId += my_topic;
+        // Attempt to connect
+        if (client.connect(clientId.c_str()))
+        {
+            Serial.println("connected");
+            AddSubscirbe("ALL");
+            AddSubscirbe(my_topic);
+        }
+        else
+        {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
+            Serial.println(" try again in 5 seconds");
+            // Wait 5 seconds before retrying
+            delay(5000);
+        }
     }
-  }
+}
+
+void Send(String device_name, String column, String data)
+{
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.createObject();
+
+    root["DN"] = device_name;
+    root[column] = data;
+
+    root.printTo();
 }
 
 /**
  * @brief 원하는 토픽에 메세지 전송
- * 
+ *
  * @param topic 보내야 할 토픽
  * @param msg 메세지
  */
 void HAS2_MQTT::Publish(String topic, String msg)
 {
-    Serial.print("Publish : "); Serial.print(topic);
-    Serial.print(" / msg : "); Serial.println(msg);
+    Serial.print("Publish : ");
+    Serial.print(topic);
+    Serial.print(" / msg : ");
+    Serial.println(msg);
     client.publish(topic.c_str(), msg.c_str());
 }
 
 /**
  * @brief 메세지를 읽기 위해 구독해야할 토픽 / 토픽 추가는 항상 connect 이후에 이루어져야 한다.
- * 
+ *
  * @param topic 구독해야 할 토픽
  */
 void HAS2_MQTT::AddSubscirbe(String topic)
 {
-    Serial.print("Add Topic : "); Serial.println(topic);
+    Serial.print("Add Topic : ");
+    Serial.println(topic);
     client.subscribe(topic.c_str(), 1);
 }
 
 /**
  * @brief 구독한 토픽에서 메세지 읽기
- * 
+ *
  */
 void HAS2_MQTT::ReadSubscirbe()
 {
-  if(!OTA && wifi_connected){
-    if (!client.connected()) {
-        connect();
+    if (!OTA && wifi_connected)
+    {
+        if (!client.connected())
+        {
+            connect();
+        }
+        client.loop();
     }
-    client.loop();
-  }
 }
 
 /**
  * @brief OTA
- * 
+ *
  * @param device_type 장치의 종류
  * @param ip_address .bin 파일 들어있는 Apache 서버의 주소
  */
 void HAS2_MQTT::FirmwareUpdate(String device_type, String ip_address)
 {
-  WiFiClient client;
+    WiFiClient client;
 
-  OTA = true;
-  
-  httpUpdate.onStart(update_started);
-  httpUpdate.onEnd(update_finished);
-  httpUpdate.onProgress(update_progress);
-  httpUpdate.onError(update_error);
+    OTA = true;
 
+    httpUpdate.onStart(update_started);
+    httpUpdate.onEnd(update_finished);
+    httpUpdate.onProgress(update_progress);
+    httpUpdate.onError(update_error);
 
-  String bin_file_name = "/" + device_type + ".bin";
-  Serial.println(bin_file_name);
-  t_httpUpdate_return ret = httpUpdate.update(client, ip_address, 80, bin_file_name);
+    String bin_file_name = "/" + device_type + ".bin";
+    Serial.println(bin_file_name);
+    t_httpUpdate_return ret = httpUpdate.update(client, ip_address, 80, bin_file_name);
 
-  switch (ret)
-  {
-  case HTTP_UPDATE_FAILED:
-    Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
-    break;
+    switch (ret)
+    {
+    case HTTP_UPDATE_FAILED:
+        Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+        break;
 
-  case HTTP_UPDATE_NO_UPDATES:
-    Serial.println("HTTP_UPDATE_NO_UPDATES");
-    break;
+    case HTTP_UPDATE_NO_UPDATES:
+        Serial.println("HTTP_UPDATE_NO_UPDATES");
+        break;
 
-  case HTTP_UPDATE_OK:
-    Serial.println("HTTP_UPDATE_OK");
-    break;
-  }
+    case HTTP_UPDATE_OK:
+        Serial.println("HTTP_UPDATE_OK");
+        break;
+    }
 }
 
 void HAS2_MQTT::update_started()
 {
-  Serial.println("CALLBACK:  HTTP update process started");
+    Serial.println("CALLBACK:  HTTP update process started");
 }
 
 void HAS2_MQTT::update_finished()
 {
-  Serial.println("CALLBACK:  HTTP update process finished");
+    Serial.println("CALLBACK:  HTTP update process finished");
 }
 
 void HAS2_MQTT::update_progress(int cur, int total)
 {
-  Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
+    Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
 }
 
 void HAS2_MQTT::update_error(int err)
 {
-  Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
+    Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
 HTTPClient http;
