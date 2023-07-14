@@ -109,7 +109,7 @@ void HAS2_Wifi::Connect(String theme)
       Serial.print(".");
       if(try_num++ > 20){
         Serial.println();
-        if(try_loop++ > 2){
+        if(try_loop++ > 5){
           Serial.println("Restart ESP");
           ESP.restart();
         }
@@ -134,6 +134,9 @@ void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
   Serial.println((const char *)new_ssid);
   Serial.print("PW : ");
   Serial.println((const char *)new_password);
+  my_mac = WiFi.macAddress();
+  Serial.print("MY MAC=");
+  Serial.println(my_mac);
 
   WiFi.begin((const char *)new_ssid, (const char *)new_password);
   Serial.println("Connecting....");
