@@ -125,14 +125,14 @@ void HAS2_MQTT::Setup(char *new_ssid, char *new_password, MQTT_CALLBACK_SIGNATUR
     {
         client.setServer(sever, 1883);
         client.setCallback(callback);
-        Connect();
+        connect();
     }
 }
 /**
  * @brief [private] mosquitto broker와 연결
  *
  */
-void HAS2_MQTT::Connect()
+void HAS2_MQTT::connect()
 {
     // Loop until we're reconnected
     while (!client.connected())
@@ -159,15 +159,16 @@ void HAS2_MQTT::Connect()
     }
 }
 
-void Send(String device_name, String column, String data)
+void HAS2_MQTT::Send(String device_name, String column, String data)
 {
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.createObject();
-
+    char json_buffer[50] = "";
+    StaticJsonDocument<200> root;
     root["DN"] = device_name;
     root[column] = data;
 
-    root.printTo();
+    serializeJson(root, json_buffer);
+
+    Serial.println(json_buffer);
 }
 
 /**

@@ -25,12 +25,13 @@ class HAS2_MQTT
     void connect();
     bool OTA;
     bool wifi_connected;
-    void Publish(String topic, String msg);
+    
 
     public:
     void Setup(MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");
     void Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");
     void Send(String device_name, String column, String data);
+    void Publish(String topic, String msg);
     void AddSubscirbe(String topic);
     void ReadSubscirbe();
     void FirmwareUpdate(String device_type, String ip_address = "172.30.1.44");
