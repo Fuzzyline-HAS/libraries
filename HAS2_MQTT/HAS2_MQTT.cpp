@@ -199,14 +199,21 @@ void HAS2_MQTT::Situation(String situation)
  * 
  * @param input_data Read 한 MQTT 메세지
  */
-void HAS2_MQTT::JsonParsingGlove(String& input_data)
+void HAS2_MQTT::JsonParsing(String& input_data)
 {
-    StaticJsonDocument<200> doc;
-    deserializeJson(doc, input_data);
+    if(input_data.startsWith("{")){
+        StaticJsonDocument<200> doc;
+        deserializeJson(doc, input_data);
+        
+        int data_num = 0;
 
-    if(((const char*)doc["DN"])[0] == 'G' && ((const char*)doc["DN"])[2] == 'P'){
-        int player_num = ((const char*)doc["DN"])[3] - '0';
-        data[player_num] = doc;
+        if(((const char*)doc["DN"])[0] == 'G' && ((const char*)doc["DN"])[2] == 'P'){
+            data_num = ((const char*)doc["DN"])[3] - '0';
+            if(data_num < 9){data[data_num] = doc;}
+            else{return ;}
+        }
+        // Json Parsing data : data[N]
+        Serial.print("Json Parsing data : data["); Serial.print(data_num); Serial.println("]");
     }
 }
 

@@ -24,15 +24,14 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
     // 함수 설명은 라이브러리 참고
     String input_data = "";
-    Serial.print("Message arrived[");
-    Serial.print(topic);
-    Serial.println("] : ");
+    // Message arrived[topic] : 
+    Serial.print("Message arrived[");Serial.print(topic);Serial.print("] : ");
     for (int i = 0; i < length; i++)
     {
         input_data += (char)payload[i];
     }
     Serial.println(input_data);
-    has2_mqtt.JsonParsingGlove(input_data);
+    has2_mqtt.JsonParsing(input_data);
 }
 
 void setup()
