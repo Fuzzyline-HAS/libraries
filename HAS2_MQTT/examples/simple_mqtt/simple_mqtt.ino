@@ -24,7 +24,9 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
     // 함수 설명은 라이브러리 참고
     String input_data = "";
-    Serial.print("Message arrived [" + topic + "] :");
+    Serial.print("Message arrived[");
+    Serial.print(topic);
+    Serial.println("] : ");
     for (int i = 0; i < length; i++)
     {
         input_data += (char)payload[i];
