@@ -159,6 +159,13 @@ void HAS2_MQTT::connect()
     }
 }
 
+/**
+ * @brief 변경하고 싶은 데이터를 JSON 형태로 변경해 OS로 전달
+ * 
+ * @param device_name   데이터를 변경할 장치의 이름
+ * @param column        데이터를 변경할 컬럼명
+ * @param data          변경할 데이터 정보
+ */
 void HAS2_MQTT::Send(String device_name, String column, String data)
 {
     char json_buffer[50] = "";
@@ -167,8 +174,40 @@ void HAS2_MQTT::Send(String device_name, String column, String data)
     root[column] = data;
 
     serializeJson(root, json_buffer);
-
     Serial.println(json_buffer);
+    client.publish("OS", json_buffer);
+}
+
+/**
+ * @brief 인식된 상황을 JSON 형태로 변경해 OS로 전달
+ * 
+ * @param situation 인식된 상황
+ */
+void HAS2_MQTT::Situation(String situation)
+{
+    char json_buffer[20] = "";
+    StaticJsonDocument<100> root;
+
+    root["Situation"] = situation;
+    serializeJson(root, json_buffer);
+    Serial.println(json_buffer);
+    client.publish("OS", json_buffer);
+}
+
+/**
+ * @brief 글러브 P1 ~ P8에 관한 데이터 정보를 판단하여 JSON 형태로 저장
+ * 
+ * @param input_data Read 한 MQTT 메세지
+ */
+void HAS2_MQTT::JsonParsingGlove(String& input_data)
+{
+    StaticJsonDocument<200> doc;
+    deserializeJson(doc, input_data);
+
+    if(((const char*)doc["DN"])[0] == 'G' && ((const char*)doc["DN"])[2] == 'P'){
+        int player_num = ((const char*)doc["DN"])[3] - '0';
+        data[player_num] = doc;
+    }
 }
 
 /**
@@ -271,4 +310,5 @@ void HAS2_MQTT::update_error(int err)
     Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-HTTPClient http;
+// HTTPClient http;
+StaticJsonDocument<200> data[9];
