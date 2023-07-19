@@ -23,3 +23,6 @@
 
 # Ignore code-workspaces
 *.code-workspace
+
+# Custom Ignore
+bulid/

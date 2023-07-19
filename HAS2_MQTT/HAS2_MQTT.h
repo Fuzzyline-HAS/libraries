@@ -17,7 +17,8 @@
 #include <HTTPUpdate.h>
 #include <ArduinoJson.h>
 
-extern StaticJsonDocument<200> data[9];
+// extern StaticJsonDocument<200> data[9];
+extern String data[9];
 
 // EX) G?P1의 배터리팩 개수 : glove1["BP"]의 형태로 값을 가져오면 됌
 #define my          data[0]
@@ -32,20 +33,26 @@ extern StaticJsonDocument<200> data[9];
 
 class HAS2_MQTT
 {
+     
     private: 
     String mac_address;         // ESP32의 맥주소
     friend class HTTPUpdate;    
     void connect();
     bool OTA;
     bool wifi_connected;
+    // int my_json_key_num;
+    // String my_json_key[8];
+    // bool CheckNewKey(const char* key);
     
 
     public:
     void Setup(MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");
     void Setup(char* new_ssid, char* new_password, MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");
     void Send(String device_name, String column, String data);
-    void Situation(String situation);
-    void JsonParsing(String& input_data);
+    void Situation(String situation, String tag_device_name);
+    void SaveByTopic(const char* topic, String& input_data);
+    String GetData(String device_name, String key);
+    // void JsonParsing(const char* topic, String& input_data);
     void Publish(String topic, String msg);
     void AddSubscirbe(String topic);
     void ReadSubscirbe();

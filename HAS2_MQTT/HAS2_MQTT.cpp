@@ -41,8 +41,8 @@ void HAS2_MQTT::Setup(MQTT_CALLBACK_SIGNATURE, const char *sever)
         Serial.print(".");
         if (wifiConnectCnt++ > 25)
         {
-            // Serial.println("Restart ESP");
-            // ESP.restart();
+            Serial.println("Restart ESP");
+            ESP.restart();
             wifi_connected = false;
         }
     }
@@ -97,8 +97,8 @@ void HAS2_MQTT::Setup(char *new_ssid, char *new_password, MQTT_CALLBACK_SIGNATUR
         Serial.print(".");
         if (wifiConnectCnt++ > 25)
         {
-            // Serial.println("Restart ESP");
-            // ESP.restart();
+            Serial.println("Restart ESP");
+            ESP.restart();
             wifi_connected = false;
         }
     }
@@ -137,6 +137,7 @@ void HAS2_MQTT::connect()
     // Loop until we're reconnected
     while (!client.connected())
     {
+        int loop_num = 0;
         Serial.print("Attempting MQTT connection...");
         // Create a random client ID
         String clientId = "ESP32_";
@@ -146,22 +147,26 @@ void HAS2_MQTT::connect()
         {
             Serial.println("connected");
             AddSubscirbe("ALL");
+            AddSubscirbe("GLOVE");
             AddSubscirbe(my_topic);
         }
         else
         {
             Serial.print("failed, rc=");
             Serial.print(client.state());
-            Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
+            Serial.println(" try again in 2 seconds");
+            if(loop_num++ > 2) {
+                Serial.println("Restart ESP");
+                ESP.restart();
+            }
+            delay(2000);
         }
     }
 }
 
 /**
  * @brief 변경하고 싶은 데이터를 JSON 형태로 변경해 OS로 전달
- * 
+ *
  * @param device_name   데이터를 변경할 장치의 이름
  * @param column        데이터를 변경할 컬럼명
  * @param data          변경할 데이터 정보
@@ -174,48 +179,110 @@ void HAS2_MQTT::Send(String device_name, String column, String data)
     root[column] = data;
 
     serializeJson(root, json_buffer);
-    Serial.println(json_buffer);
+    Serial.print("Send[OS] : "); Serial.println(json_buffer);
     client.publish("OS", json_buffer);
 }
 
 /**
  * @brief 인식된 상황을 JSON 형태로 변경해 OS로 전달
- * 
+ *
  * @param situation 인식된 상황
  */
-void HAS2_MQTT::Situation(String situation)
+void HAS2_MQTT::Situation(String situation, String tag_device_name)
 {
-    char json_buffer[20] = "";
+    char json_buffer[50] = "";
     StaticJsonDocument<100> root;
 
     root["Situation"] = situation;
+    root["DN"] = tag_device_name;
     serializeJson(root, json_buffer);
-    Serial.println(json_buffer);
+    Serial.print("Send[OS] : "); Serial.println(json_buffer);
     client.publish("OS", json_buffer);
 }
 
 /**
- * @brief 글러브 P1 ~ P8에 관한 데이터 정보를 판단하여 JSON 형태로 저장
+ * @brief Topic에 맞게 #define 된 data[]에 input_data 저장
  * 
- * @param input_data Read 한 MQTT 메세지
+ * @param topic 전송한 Topic 이름
+ * @param input_data 수신한 데이터
  */
-void HAS2_MQTT::JsonParsing(String& input_data)
+void HAS2_MQTT::SaveByTopic(const char* topic, String& input_data)
 {
-    if(input_data.startsWith("{")){
-        StaticJsonDocument<200> doc;
-        deserializeJson(doc, input_data);
-        
-        int data_num = 0;
-
-        if(((const char*)doc["DN"])[0] == 'G' && ((const char*)doc["DN"])[2] == 'P'){
-            data_num = ((const char*)doc["DN"])[3] - '0';
-            if(data_num < 9){data[data_num] = doc;}
-            else{return ;}
+    StaticJsonDocument<50> doc;
+    deserializeJson(doc, input_data);
+    if (strcmp(topic,"GLOVE") == 0){
+        if (((const char *)doc["DN"])[0] == 'G' && ((const char *)doc["DN"])[2] == 'P'){
+            int data_num = ((const char *)doc["DN"])[3] - '0';
+            data[data_num] = input_data;
         }
-        // Json Parsing data : data[N]
-        Serial.print("Json Parsing data : data["); Serial.print(data_num); Serial.println("]");
+    }
+    else{
+        data[0] = input_data;
     }
 }
+
+/**
+ * @brief String을 JSON 형식으로 parsing 하여 원하는 데이터를 가져옴 
+ * 
+ * @param device_name #define 된 장치 이름
+ * @param key 원하는 데이터의 column명
+ * @return String 해당 KEY의 VALUE를 반환
+ */
+String HAS2_MQTT::GetData(String device_name, String key)
+{
+    StaticJsonDocument<200> doc;
+    deserializeJson(doc, device_name);
+    
+    if((String)(const char*)doc["BP"] != NULL){
+        String parsing_data = (String)(const char*)doc["BP"];
+        Serial.print("Get Data : "); Serial.println(parsing_data);
+        return parsing_data;
+    }
+    else{
+        //TODO OS로 해당 key의 value 요청하는 코드 필요
+        return "-1";
+    }
+
+    
+}
+/**
+ * @brief 글러브 P1 ~ P8에 관한 데이터 정보를 판단하여 JSON 형태로 저장
+ *
+ * @param topic topic 정보
+ * @param input_data Read 한 MQTT 메세지
+ */
+// void HAS2_MQTT::JsonParsing(const char* topic, String &input_data){
+//     StaticJsonDocument<200> doc;
+//     deserializeJson(doc, input_data);
+    
+//     // GLOVE로 들어온 정보는 data[1] ~ data[8]에 저장
+//     if (strcmp(topic,"GLOVE") == 0){ // 0일 때 같다
+//         if (((const char *)doc["DN"])[0] == 'G' && ((const char *)doc["DN"])[2] == 'P'){
+//             int data_num = ((const char *)doc["DN"])[3] - '0';
+//             data[data_num] = doc;
+//         }
+//     } // ALL이나 맥주소 로 들어온 정보는 data[0]에 저장
+//     else{ data[0] = doc; }
+// }
+
+// /**
+//  * @brief JSON KEY값이 이전에 들어와 저장되어 있는지 아닌지 판단
+//  * 
+//  * @param key 
+//  * @return true 새로운 KEY 값
+//  * @return false 이미 저장되어 있는 키 값
+//  */
+// bool HAS2_MQTT::CheckNewKey(const char* key)
+// {
+//     for (String buff_key : my_json_key)
+//     {
+//         if (buff_key == key)
+//         {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
 
 /**
  * @brief 원하는 토픽에 메세지 전송
@@ -318,4 +385,5 @@ void HAS2_MQTT::update_error(int err)
 }
 
 // HTTPClient http;
-StaticJsonDocument<200> data[9];
+// StaticJsonDocument<200> data[9];
+String data[9];

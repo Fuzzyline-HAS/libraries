@@ -1,4 +1,5 @@
 {
+    "output": "./build",
     "port": "COM5",
     "board": "esp32:esp32:ttgo-t1",
     "sketch": "examples\\simple_mqtt\\simple_mqtt.ino"
