@@ -38,7 +38,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     // ==================== 여기까지 기본틀 복사해서 사용 ============================
     // 원하는 데이터를 가지고 오고 싶을때 사용
     // 기본이 String이여서 int 형으로 사용하고 싶으면 toInt() 함수 사용
-    Serial.println(has2_mqtt.GetData(glove8, "BP").toInt());
+    Serial.println(has2_mqtt.GetData("G1P8", "BP").toInt());
 
     // 태그 완료시 (07.19일 기준 : 모든 장치 시나리오 상황 시 [상황완료 = tag]로 보내는것으로 합의)
     has2_mqtt.Situation("tag", "G1P1");

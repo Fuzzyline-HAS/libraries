@@ -222,17 +222,26 @@ void HAS2_MQTT::SaveByTopic(const char* topic, String& input_data)
 }
 
 /**
- * @brief String을 JSON 형식으로 parsing 하여 원하는 데이터를 가져옴 
+ * @brief String을 JSON 형식으로 parsing 하여 원하는 자신의 데이터, 글러브의 데이터 를 가져옴 
  * 
- * @param device_name #define 된 장치 이름
+ * @param device_name 장치 이름
  * @param key 원하는 데이터의 column명
  * @return String 해당 KEY의 VALUE를 반환
  */
 String HAS2_MQTT::GetData(String device_name, String key)
 {
     StaticJsonDocument<200> doc;
-    deserializeJson(doc, device_name);
     
+    if (device_name[0] == 'G' && device_name[2] == 'P'){
+        int data_num = device_name[3] - '0';
+        device_name = data[data_num];
+    }
+    else{
+        device_name = data[0];
+    }
+
+    deserializeJson(doc, device_name);
+
     if((String)(const char*)doc["BP"] != NULL){
         String parsing_data = (String)(const char*)doc["BP"];
         Serial.print("Get Data : "); Serial.println(parsing_data);
