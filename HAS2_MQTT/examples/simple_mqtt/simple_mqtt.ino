@@ -41,7 +41,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     Serial.println(has2_mqtt.GetData("G1P8", "BP").toInt());
 
     // 태그 완료시 (07.19일 기준 : 모든 장치 시나리오 상황 시 [상황완료 = tag]로 보내는것으로 합의)
-    has2_mqtt.Situation("tag", "G1P1");
+    has2_mqtt.Send("G1P1", "LC", "+1");
 }
 
 void setup()

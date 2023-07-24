@@ -175,6 +175,7 @@ void HAS2_MQTT::Send(String device_name, String column, String data)
 {
     char json_buffer[50] = "";
     StaticJsonDocument<200> root;
+    root["MAC"] = my_topic;
     root["DN"] = device_name;
     root[column] = data;
 
@@ -186,13 +187,15 @@ void HAS2_MQTT::Send(String device_name, String column, String data)
 /**
  * @brief 인식된 상황을 JSON 형태로 변경해 OS로 전달
  *
- * @param situation 인식된 상황
+ * @param situation 인식된 상황, 일단 "tag"로 고정
+ * @param tag_device_name 태그한 디바이스 이름
  */
 void HAS2_MQTT::Situation(String situation, String tag_device_name)
 {
     char json_buffer[50] = "";
     StaticJsonDocument<100> root;
 
+    root["MAC"] = my_topic; 
     root["Situation"] = situation;
     root["DN"] = tag_device_name;
     serializeJson(root, json_buffer);
