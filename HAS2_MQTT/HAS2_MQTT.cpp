@@ -245,8 +245,8 @@ String HAS2_MQTT::GetData(String device_name, String key)
 
     deserializeJson(doc, device_name);
 
-    if((String)(const char*)doc["BP"] != NULL){
-        String parsing_data = (String)(const char*)doc["BP"];
+    if((String)(const char*)doc[key] != NULL){
+        String parsing_data = (String)(const char*)doc[key];
         Serial.print("Get Data : "); Serial.println(parsing_data);
         return parsing_data;
     }
