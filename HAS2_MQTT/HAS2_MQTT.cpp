@@ -196,7 +196,7 @@ void HAS2_MQTT::Situation(String situation, String tag_device_name)
     StaticJsonDocument<100> root;
 
     root["MAC"] = my_topic; 
-    root["Situation"] = situation;
+    root["SIT"] = situation;
     root["DN"] = tag_device_name;
     serializeJson(root, json_buffer);
     Serial.print("Send[OS] : "); Serial.println(json_buffer);
