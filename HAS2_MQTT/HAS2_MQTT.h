@@ -21,7 +21,7 @@
 extern String data[9];
 
 // EX) G?P1의 배터리팩 개수 : glove1["BP"]의 형태로 값을 가져오면 됌
-#define my          data[0]
+#define my_data     data[0]
 #define glove1      data[1]
 #define glove2      data[2]     
 #define glove3      data[3]
@@ -33,17 +33,12 @@ extern String data[9];
 
 class HAS2_MQTT
 {
-     
     private: 
     String mac_address;         // ESP32의 맥주소
     friend class HTTPUpdate;    
     void connect();
     bool OTA;
-    bool wifi_connected;
-    // int my_json_key_num;
-    // String my_json_key[8];
-    // bool CheckNewKey(const char* key);
-    
+    bool wifi_connected; 
 
     public:
     void Setup(MQTT_CALLBACK_SIGNATURE, const char* sever = "172.30.1.44");

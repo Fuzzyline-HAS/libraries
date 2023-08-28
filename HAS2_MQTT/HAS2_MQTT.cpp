@@ -253,48 +253,8 @@ String HAS2_MQTT::GetData(String device_name, String key)
     else{
         //TODO OS로 해당 key의 value 요청하는 코드 필요
         return "-1";
-    }
-
-    
+    }    
 }
-/**
- * @brief 글러브 P1 ~ P8에 관한 데이터 정보를 판단하여 JSON 형태로 저장
- *
- * @param topic topic 정보
- * @param input_data Read 한 MQTT 메세지
- */
-// void HAS2_MQTT::JsonParsing(const char* topic, String &input_data){
-//     StaticJsonDocument<200> doc;
-//     deserializeJson(doc, input_data);
-    
-//     // GLOVE로 들어온 정보는 data[1] ~ data[8]에 저장
-//     if (strcmp(topic,"GLOVE") == 0){ // 0일 때 같다
-//         if (((const char *)doc["DN"])[0] == 'G' && ((const char *)doc["DN"])[2] == 'P'){
-//             int data_num = ((const char *)doc["DN"])[3] - '0';
-//             data[data_num] = doc;
-//         }
-//     } // ALL이나 맥주소 로 들어온 정보는 data[0]에 저장
-//     else{ data[0] = doc; }
-// }
-
-// /**
-//  * @brief JSON KEY값이 이전에 들어와 저장되어 있는지 아닌지 판단
-//  * 
-//  * @param key 
-//  * @return true 새로운 KEY 값
-//  * @return false 이미 저장되어 있는 키 값
-//  */
-// bool HAS2_MQTT::CheckNewKey(const char* key)
-// {
-//     for (String buff_key : my_json_key)
-//     {
-//         if (buff_key == key)
-//         {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
 
 /**
  * @brief 원하는 토픽에 메세지 전송
