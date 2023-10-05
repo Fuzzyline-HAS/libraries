@@ -211,7 +211,7 @@ void HAS2_MQTT::Situation(String situation, String tag_device_name)
  */
 void HAS2_MQTT::SaveByTopic(const char* topic, String& input_data)
 {
-    StaticJsonDocument<50> doc;
+    StaticJsonDocument<1000> doc;
     deserializeJson(doc, input_data);
     if (strcmp(topic,"GLOVE") == 0){
         if (((const char *)doc["DN"])[0] == 'G' && ((const char *)doc["DN"])[2] == 'P'){
@@ -247,7 +247,7 @@ String HAS2_MQTT::GetData(String device_name, String key)
 
     if((String)(const char*)doc[key] != NULL){
         String parsing_data = (String)(const char*)doc[key];
-        Serial.print("Get Data : "); Serial.println(parsing_data);
+        // Serial.print("Get Data : "); Serial.println(parsing_data);
         return parsing_data;
     }
     else{
@@ -356,6 +356,4 @@ void HAS2_MQTT::update_error(int err)
     Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-// HTTPClient http;
-// StaticJsonDocument<200> data[9];
 String data[9];
