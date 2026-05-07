@@ -73,7 +73,7 @@ public:
     void Situation(String affected_device_name, String situation);
     void Loop();
     void Loop(void (*Func)(void));
-    void FirmwareUpdate(String device_type, String ip_address = "172.30.1.44");
+    void FirmwareUpdate(String device_type, String ip_address = "172.30.1.43");
 };
 
 #endif

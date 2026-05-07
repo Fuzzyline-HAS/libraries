@@ -11,14 +11,14 @@
 
 #include "HAS2_Wifi.h"
 
-static String _activeHost = "http://172.30.1.44";
+static String _activeHost = "http://172.30.1.43";
 
 /**
  * @brief HAS2_Wifi 기본생성자
  *
  */
 HAS2_Wifi::HAS2_Wifi()
-    : HOST_NAME("http://172.30.1.44"),
+    : HOST_NAME("http://172.30.1.43"),
       PHP_FILE_NAME("/has2.php"),
       server(HOST_NAME + PHP_FILE_NAME)
 {
@@ -30,7 +30,7 @@ HAS2_Wifi::HAS2_Wifi()
 //  * @param php 원하는 PHP 파일 입력["/test.php"]형식
 //  */
 // HAS2_Wifi::HAS2_Wifi(String php)
-//     : HOST_NAME("http://172.30.1.44"),
+//     : HOST_NAME("http://172.30.1.43"),
 //       PHP_FILE_NAME(php),
 //       server(HOST_NAME + PHP_FILE_NAME)
 // {
