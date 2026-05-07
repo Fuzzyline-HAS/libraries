@@ -11,6 +11,8 @@
 
 #include "HAS2_Wifi.h"
 
+static String _activeHost = "http://172.30.1.44";
+
 /**
  * @brief HAS2_Wifi 기본생성자
  *
@@ -45,6 +47,7 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
       PHP_FILE_NAME(php),
       server(HOST_NAME + PHP_FILE_NAME)
 {
+    _activeHost = host;
 }
 
 /**
@@ -475,7 +478,7 @@ void update_started()
 
 void update_finished()
 {
-  HAS2_Wifi has2_wifi;
+  HAS2_Wifi has2_wifi(_activeHost);
   has2_wifi.Send((String)(const char *)my["device_name"], "device_state", "setting");
   Serial.println("CALLBACK:  HTTP update process finished");
 }
