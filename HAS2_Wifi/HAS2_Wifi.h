@@ -18,6 +18,8 @@
 #include <ArduinoJson.h> // wifi 관련 라이브러리
 #include <HTTPUpdate.h>  // OTA 관련 라이브러리
 
+#include <Preferences.h>
+
 void update_started();
 void update_finished();
 void update_progress(int cur, int total);
@@ -30,14 +32,16 @@ extern StaticJsonDocument<1000> my;
 extern StaticJsonDocument<1000> tag;
 extern StaticJsonDocument<500> skill;
 
-typedef struct SSID
+typedef struct HAS2_WifiCandidate
 {
-    const char *name;
-} SSID;
+    const char *ssid;
+    const char *password;
+    int lastRssi;
+    float avgRssi;
+    int seenCount;
+    unsigned long lastSeenMs;
+} HAS2_WifiCandidate;
 
-// 서버랑 같은 ip 연결
-const char ssid[] = "tp-link";       // wifi 이름
-const char password[] = "Code3824@"; // wifi 비밀번호
 
 /**
  * @brief HAS2 전용 Wifi 라이브러리
@@ -51,11 +55,22 @@ private:
     String server;
     String device_name;
     String my_mac;
+    Preferences wifi_preferences;
+    unsigned long lastWifiScanMs;
+    bool wifiCandidatesInitialized;
 
     friend class HTTPUpdate;
 
     void HttpRequest(String request, String string_request);
     void JsonParsing(String request, String json);
+    void EnsureWifiCandidatesInitialized();
+    void ScanBadlandNetworks(bool force = false);
+    bool TryConnect(const char *new_ssid, const char *new_password, unsigned long timeoutMs = 3000);
+    bool TryConnectOrdered();
+    bool TryConnectSaved();
+    void SaveLastWifi(const char *new_ssid, const char *new_password);
+    void MaintainWifi();
+    void PrintConnectedWifi();
 
 public:
     HAS2_Wifi();

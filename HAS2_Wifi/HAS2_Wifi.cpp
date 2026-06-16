@@ -12,6 +12,19 @@
 #include "HAS2_Wifi.h"
 
 static String _activeHost = "http://172.30.1.43";
+static const int BADLAND_WIFI_COUNT = 3;
+static const int WIFI_MIN_RSSI = -70;
+static const unsigned long WIFI_SCAN_INTERVAL_MS = 60000;
+static const unsigned long WIFI_CONNECT_TIMEOUT_MS = 3000;
+static const char *WIFI_PREF_NAMESPACE = "has2wifi";
+static const char *WIFI_PREF_SSID = "last_ssid";
+static const char *WIFI_PREF_PASSWORD = "last_pw";
+
+static HAS2_WifiCandidate badland_wifi_candidates[BADLAND_WIFI_COUNT] = {
+    {"badland_ruins", "Code3824@", -127, -127.0f, 0, 0},
+    {"badland_auto", "Code3824@", -127, -127.0f, 0, 0},
+    {"badland_shoot", "Code3824@", -127, -127.0f, 0, 0},
+};
 
 /**
  * @brief HAS2_Wifi 기본생성자
@@ -20,7 +33,9 @@ static String _activeHost = "http://172.30.1.43";
 HAS2_Wifi::HAS2_Wifi()
     : HOST_NAME("http://172.30.1.43"),
       PHP_FILE_NAME("/has2.php"),
-      server(HOST_NAME + PHP_FILE_NAME)
+      server(HOST_NAME + PHP_FILE_NAME),
+      lastWifiScanMs(0),
+      wifiCandidatesInitialized(false)
 {
 }
 
@@ -45,9 +60,206 @@ HAS2_Wifi::HAS2_Wifi()
 HAS2_Wifi::HAS2_Wifi(String host, String php)
     : HOST_NAME(host),
       PHP_FILE_NAME(php),
-      server(HOST_NAME + PHP_FILE_NAME)
+      server(HOST_NAME + PHP_FILE_NAME),
+      lastWifiScanMs(0),
+      wifiCandidatesInitialized(false)
 {
     _activeHost = host;
+}
+
+void HAS2_Wifi::EnsureWifiCandidatesInitialized()
+{
+  if (wifiCandidatesInitialized)
+  {
+    return;
+  }
+
+  for (int i = 0; i < BADLAND_WIFI_COUNT; i++)
+  {
+    badland_wifi_candidates[i].lastRssi = -127;
+    badland_wifi_candidates[i].avgRssi = -127.0f;
+    badland_wifi_candidates[i].seenCount = 0;
+    badland_wifi_candidates[i].lastSeenMs = 0;
+  }
+  wifiCandidatesInitialized = true;
+}
+
+void HAS2_Wifi::ScanBadlandNetworks(bool force)
+{
+  EnsureWifiCandidatesInitialized();
+  WiFi.mode(WIFI_STA);
+
+  unsigned long now = millis();
+  if (!force && lastWifiScanMs != 0 && now - lastWifiScanMs < WIFI_SCAN_INTERVAL_MS)
+  {
+    return;
+  }
+  lastWifiScanMs = now;
+
+  int network_count = WiFi.scanNetworks();
+  if (network_count < 0)
+  {
+    Serial.println("WiFi scan failed");
+    return;
+  }
+
+  for (int i = 0; i < network_count; i++)
+  {
+    String found_ssid = WiFi.SSID(i);
+    int found_rssi = WiFi.RSSI(i);
+
+    for (int candidate_index = 0; candidate_index < BADLAND_WIFI_COUNT; candidate_index++)
+    {
+      HAS2_WifiCandidate &candidate = badland_wifi_candidates[candidate_index];
+      if (found_ssid == candidate.ssid)
+      {
+        candidate.lastRssi = found_rssi;
+        candidate.avgRssi = candidate.seenCount == 0 ? found_rssi : (candidate.avgRssi * 0.7f + found_rssi * 0.3f);
+        candidate.seenCount++;
+        candidate.lastSeenMs = now;
+      }
+    }
+  }
+
+  for (int i = 0; i < BADLAND_WIFI_COUNT - 1; i++)
+  {
+    for (int j = i + 1; j < BADLAND_WIFI_COUNT; j++)
+    {
+      bool should_swap = false;
+      if (badland_wifi_candidates[j].seenCount > 0 && badland_wifi_candidates[i].seenCount == 0)
+      {
+        should_swap = true;
+      }
+      else if (badland_wifi_candidates[j].seenCount > 0 && badland_wifi_candidates[i].seenCount > 0 &&
+               badland_wifi_candidates[j].avgRssi > badland_wifi_candidates[i].avgRssi)
+      {
+        should_swap = true;
+      }
+
+      if (should_swap)
+      {
+        HAS2_WifiCandidate temp = badland_wifi_candidates[i];
+        badland_wifi_candidates[i] = badland_wifi_candidates[j];
+        badland_wifi_candidates[j] = temp;
+      }
+    }
+  }
+
+  WiFi.scanDelete();
+}
+
+bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsigned long timeoutMs)
+{
+  Serial.print("Try WiFi: ");
+  Serial.println(new_ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(true);
+  delay(100);
+  WiFi.begin(new_ssid, new_password);
+
+  unsigned long started_ms = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - started_ms < timeoutMs)
+  {
+    delay(100);
+    Serial.print(".");
+  }
+  Serial.println();
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    SaveLastWifi(new_ssid, new_password);
+    PrintConnectedWifi();
+    return true;
+  }
+
+  Serial.println("WiFi connect failed");
+  return false;
+}
+
+bool HAS2_Wifi::TryConnectOrdered()
+{
+  ScanBadlandNetworks(true);
+
+  for (int i = 0; i < BADLAND_WIFI_COUNT; i++)
+  {
+    HAS2_WifiCandidate &candidate = badland_wifi_candidates[i];
+    if (candidate.seenCount == 0 || candidate.lastSeenMs < lastWifiScanMs)
+    {
+      Serial.print("Skip unseen WiFi: ");
+      Serial.println(candidate.ssid);
+      continue;
+    }
+
+    if (candidate.avgRssi < WIFI_MIN_RSSI)
+    {
+      Serial.print("Skip weak WiFi: ");
+      Serial.print(candidate.ssid);
+      Serial.print(" RSSI=");
+      Serial.println(candidate.avgRssi);
+      continue;
+    }
+
+    if (TryConnect(candidate.ssid, candidate.password, WIFI_CONNECT_TIMEOUT_MS))
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool HAS2_Wifi::TryConnectSaved()
+{
+  wifi_preferences.begin(WIFI_PREF_NAMESPACE, true);
+  String saved_ssid = wifi_preferences.getString(WIFI_PREF_SSID, "");
+  String saved_password = wifi_preferences.getString(WIFI_PREF_PASSWORD, "");
+  wifi_preferences.end();
+
+  if (saved_ssid.length() == 0 || saved_password.length() == 0)
+  {
+    return false;
+  }
+
+  Serial.print("Try saved WiFi: ");
+  Serial.println(saved_ssid);
+  return TryConnect(saved_ssid.c_str(), saved_password.c_str(), WIFI_CONNECT_TIMEOUT_MS);
+}
+
+void HAS2_Wifi::SaveLastWifi(const char *new_ssid, const char *new_password)
+{
+  wifi_preferences.begin(WIFI_PREF_NAMESPACE, false);
+  wifi_preferences.putString(WIFI_PREF_SSID, new_ssid);
+  wifi_preferences.putString(WIFI_PREF_PASSWORD, new_password);
+  wifi_preferences.end();
+}
+
+void HAS2_Wifi::MaintainWifi()
+{
+  ScanBadlandNetworks(false);
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    return;
+  }
+
+  Serial.println("WiFi disconnected. Reconnecting...");
+  if (!TryConnectOrdered())
+  {
+    Serial.println("Restart ESP");
+    ESP.restart();
+  }
+}
+
+void HAS2_Wifi::PrintConnectedWifi()
+{
+  Serial.println("WiFi connected");
+  Serial.print("Connected SSID: ");
+  Serial.println(WiFi.SSID());
+  Serial.print("Connected RSSI: ");
+  Serial.println(WiFi.RSSI());
+  Serial.print("Connected to WiFi network with IP Address: ");
+  Serial.println(WiFi.localIP());
 }
 
 /**
@@ -56,33 +268,13 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
  */
 void HAS2_Wifi::Setup()
 {
-  int wifiConnectCnt = 0;
-  WiFi.begin(ssid, password);
-  Serial.println("Connecting....");
-  while (WiFi.status() != WL_CONNECTED)
+  if (!TryConnectSaved() && !TryConnectOrdered())
   {
-    delay(100);
-    Serial.print(".");
-    if (wifiConnectCnt++ > 20)
-    {
-      Serial.println("Restart ESP");
-      ESP.restart();
-    }
-  }
-
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    Serial.println("WiFi connected");
-  }
-  else
-  {
-    Serial.println("WiFi not connected");
+    Serial.println("Restart ESP");
+    ESP.restart();
   }
   delay(1000);
 
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
   my_mac = WiFi.macAddress();
   Serial.print("MY MAC=");
   Serial.println(my_mac);
@@ -95,34 +287,15 @@ void HAS2_Wifi::Setup()
 
 void HAS2_Wifi::Connect(String theme)
 {
-  int try_loop = 0;
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    return;
+  }
 
-  ConnetGoTo:
-  if(WiFi.status() != WL_CONNECTED){
-    int try_num = 0;
-    if(theme == "city"){
-      WiFi.begin("tp-link", "Code3824@");
-    }
-    else if(theme == "badland"){
-      WiFi.begin("main_badland", "Code3824@");
-    }
-    while (WiFi.status() != WL_CONNECTED)
-    {
-      delay(100);
-      Serial.print(".");
-      if(try_num++ > 20){
-        Serial.println();
-        if(try_loop++ > 5){
-          Serial.println("Restart ESP");
-          ESP.restart();
-        }
-        goto ConnetGoTo;
-      }
-    }
-    if (WiFi.status() == WL_CONNECTED)
-    {
-      Serial.println("WiFi connected");
-    }
+  if (!TryConnectOrdered())
+  {
+    Serial.println("Restart ESP");
+    ESP.restart();
   }
 }
 
@@ -132,41 +305,19 @@ void HAS2_Wifi::Connect(String theme)
  */
 void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 {
-  int wifiConnectCnt = 0;
   Serial.print("SSID : ");
   Serial.println((const char *)new_ssid);
-  Serial.print("PW : ");
-  Serial.println((const char *)new_password);
   my_mac = WiFi.macAddress();
   Serial.print("MY MAC=");
   Serial.println(my_mac);
 
-  WiFi.begin((const char *)new_ssid, (const char *)new_password);
-  Serial.println("Connecting....");
-  while (WiFi.status() != WL_CONNECTED)
+  if (!TryConnect((const char *)new_ssid, (const char *)new_password, WIFI_CONNECT_TIMEOUT_MS))
   {
-    delay(100);
-    Serial.print(".");
-    if (wifiConnectCnt++ > 20)
-    {
-      Serial.println("Restart ESP");
-      ESP.restart();
-    }
-  }
-
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    Serial.println("WiFi connected");
-  }
-  else
-  {
-    Serial.println("WiFi not connected");
+    Serial.println("Restart ESP");
+    ESP.restart();
   }
   delay(1000);
 
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
   my_mac = WiFi.macAddress();
   Serial.print("MY MAC=");
   Serial.println(my_mac);
@@ -179,68 +330,16 @@ void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 
 void HAS2_Wifi::Setup(String theme)
 {
-  SSID city_ssid[] = {{"HAS2_food"}, {"HAS2_office"}, {"HAS2_gun"}, {"HAS2_bar"}, {"HAS2_house"}, {"tp-link"}};
-  SSID badland_ssid[] = {{"badland_ruins"}, {"badland_shoot"}, {"badland_prison"}, {"badland_check"}, {"badland_auto"}};
+  Serial.print("WiFi theme: ");
+  Serial.println(theme);
 
-  int wifi_list = 0;
-  int wifiConnectCnt = 0;
-  int ssid_array_size = 0;
-
-NextWifiList:
-  Serial.println();
-  if (theme == "city")
+  if (!TryConnectSaved() && !TryConnectOrdered())
   {
-    WiFi.begin(city_ssid[wifi_list].name, "Code3824@");
-    Serial.println(city_ssid[wifi_list].name);
-    ssid_array_size = sizeof(city_ssid) / sizeof(SSID) - 1;
-    Serial.print("city 배열 사이즈 : ");
-    Serial.println(ssid_array_size);
-  }
-  else if (theme == "badland")
-  {
-    WiFi.begin(badland_ssid[wifi_list].name, "Code3824@");
-    Serial.println(badland_ssid[wifi_list].name);
-    Serial.print("badland 배열 사이즈 : ");
-    ssid_array_size = sizeof(badland_ssid) / sizeof(SSID) - 1;
-  }
-
-  my_mac = WiFi.macAddress();
-  Serial.print("MY MAC=");
-  Serial.println(my_mac);
-  Serial.println("Connecting....");
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(100);
-    Serial.print(".");
-    if (wifiConnectCnt++ > 20)
-    {
-      if (++wifi_list > ssid_array_size)
-      {
-        Serial.println("Restart ESP");
-        ESP.restart();
-      }
-      else
-      {
-        wifiConnectCnt = 0;
-        goto NextWifiList;
-      }
-    }
-  }
-
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    Serial.println("WiFi connected");
-  }
-  else
-  {
-    Serial.println("WiFi not connected");
+    Serial.println("Restart ESP");
+    ESP.restart();
   }
   delay(1000);
 
-  Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
   my_mac = WiFi.macAddress();
   Serial.print("MY MAC=");
   Serial.println(my_mac);
@@ -250,7 +349,6 @@ NextWifiList:
   Serial.print("DeviceName : ");
   Serial.println((const char *)my["device_name"]);
 }
-
 /**
  * @brief 다른 장치의 데이터를 읽음
  *
@@ -316,6 +414,8 @@ void HAS2_Wifi::ReceiveMine()
  */
 void HAS2_Wifi::Loop()
 {
+  MaintainWifi();
+
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
   if ((int)shift_machine["shift_machine"] >= 1)
@@ -336,6 +436,8 @@ void HAS2_Wifi::Loop()
  */
 void HAS2_Wifi::Loop(void (*Func)(void))
 {
+  MaintainWifi();
+
   String string_request = server + "?request=" + "Loop" + "&table=" + "device" + "&mac=" + my_mac;
   HttpRequest("Loop", string_request);
   if ((int)shift_machine["shift_machine"] >= 1)
