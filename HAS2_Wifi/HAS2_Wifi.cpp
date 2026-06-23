@@ -12,6 +12,7 @@
 #include "HAS2_Wifi.h"
 
 static String _activeHost = "http://172.30.1.43";
+static Print *_has2DebugPrint = &Serial;
 static const int BADLAND_WIFI_COUNT = 3;
 static const int WIFI_MIN_RSSI = -70;
 static const unsigned long WIFI_SCAN_INTERVAL_MS = 60000;
@@ -25,6 +26,31 @@ static HAS2_WifiCandidate badland_wifi_candidates[BADLAND_WIFI_COUNT] = {
     {"badland_auto", "Code3824@", -127, -127.0f, 0, 0},
     {"badland_shoot", "Code3824@", -127, -127.0f, 0, 0},
 };
+
+static void HAS2DebugPrintf(const char *format, ...)
+{
+  if (_has2DebugPrint == nullptr)
+  {
+    return;
+  }
+
+  char buffer[180];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  va_end(args);
+  _has2DebugPrint->print(buffer);
+}
+
+/**
+ * @brief 디버그 출력 대상을 설정 (기본값: Serial)
+ *
+ * @param debugPrint 디버그 메시지를 출력할 Print 객체 포인터. nullptr이면 출력 비활성화
+ */
+void HAS2_Wifi::SetDebugPrint(Print *debugPrint)
+{
+  _has2DebugPrint = debugPrint;
+}
 
 /**
  * @brief HAS2_Wifi 기본생성자
@@ -99,7 +125,7 @@ void HAS2_Wifi::ScanBadlandNetworks(bool force)
   int network_count = WiFi.scanNetworks();
   if (network_count < 0)
   {
-    Serial.println("WiFi scan failed");
+    _has2DebugPrint->println("WiFi scan failed");
     return;
   }
 
@@ -150,8 +176,8 @@ void HAS2_Wifi::ScanBadlandNetworks(bool force)
 
 bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsigned long timeoutMs)
 {
-  Serial.print("Try WiFi: ");
-  Serial.println(new_ssid);
+  _has2DebugPrint->print("Try WiFi: ");
+  _has2DebugPrint->println(new_ssid);
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true);
@@ -162,9 +188,9 @@ bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsig
   while (WiFi.status() != WL_CONNECTED && millis() - started_ms < timeoutMs)
   {
     delay(100);
-    Serial.print(".");
+    _has2DebugPrint->print(".");
   }
-  Serial.println();
+  _has2DebugPrint->println();
 
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -173,7 +199,7 @@ bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsig
     return true;
   }
 
-  Serial.println("WiFi connect failed");
+  _has2DebugPrint->println("WiFi connect failed");
   return false;
 }
 
@@ -186,17 +212,17 @@ bool HAS2_Wifi::TryConnectOrdered()
     HAS2_WifiCandidate &candidate = badland_wifi_candidates[i];
     if (candidate.seenCount == 0 || candidate.lastSeenMs < lastWifiScanMs)
     {
-      Serial.print("Skip unseen WiFi: ");
-      Serial.println(candidate.ssid);
+      _has2DebugPrint->print("Skip unseen WiFi: ");
+      _has2DebugPrint->println(candidate.ssid);
       continue;
     }
 
     if (candidate.avgRssi < WIFI_MIN_RSSI)
     {
-      Serial.print("Skip weak WiFi: ");
-      Serial.print(candidate.ssid);
-      Serial.print(" RSSI=");
-      Serial.println(candidate.avgRssi);
+      _has2DebugPrint->print("Skip weak WiFi: ");
+      _has2DebugPrint->print(candidate.ssid);
+      _has2DebugPrint->print(" RSSI=");
+      _has2DebugPrint->println(candidate.avgRssi);
       continue;
     }
 
@@ -221,8 +247,8 @@ bool HAS2_Wifi::TryConnectSaved()
     return false;
   }
 
-  Serial.print("Try saved WiFi: ");
-  Serial.println(saved_ssid);
+  _has2DebugPrint->print("Try saved WiFi: ");
+  _has2DebugPrint->println(saved_ssid);
   return TryConnect(saved_ssid.c_str(), saved_password.c_str(), WIFI_CONNECT_TIMEOUT_MS);
 }
 
@@ -243,23 +269,23 @@ void HAS2_Wifi::MaintainWifi()
     return;
   }
 
-  Serial.println("WiFi disconnected. Reconnecting...");
+  _has2DebugPrint->println("WiFi disconnected. Reconnecting...");
   if (!TryConnectOrdered())
   {
-    Serial.println("Restart ESP");
+    _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
 }
 
 void HAS2_Wifi::PrintConnectedWifi()
 {
-  Serial.println("WiFi connected");
-  Serial.print("Connected SSID: ");
-  Serial.println(WiFi.SSID());
-  Serial.print("Connected RSSI: ");
-  Serial.println(WiFi.RSSI());
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
+  _has2DebugPrint->println("WiFi connected");
+  _has2DebugPrint->print("Connected SSID: ");
+  _has2DebugPrint->println(WiFi.SSID());
+  _has2DebugPrint->print("Connected RSSI: ");
+  _has2DebugPrint->println(WiFi.RSSI());
+  _has2DebugPrint->print("Connected to WiFi network with IP Address: ");
+  _has2DebugPrint->println(WiFi.localIP());
 }
 
 /**
@@ -270,19 +296,19 @@ void HAS2_Wifi::Setup()
 {
   if (!TryConnectSaved() && !TryConnectOrdered())
   {
-    Serial.println("Restart ESP");
+    _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
   delay(1000);
 
   my_mac = WiFi.macAddress();
-  Serial.print("MY MAC=");
-  Serial.println(my_mac);
+  _has2DebugPrint->print("MY MAC=");
+  _has2DebugPrint->println(my_mac);
 
   ReceiveMine();
 
-  Serial.print("DeviceName : ");
-  Serial.println((const char *)my["device_name"]);
+  _has2DebugPrint->print("DeviceName : ");
+  _has2DebugPrint->println((const char *)my["device_name"]);
 }
 
 void HAS2_Wifi::Connect(String theme)
@@ -294,7 +320,7 @@ void HAS2_Wifi::Connect(String theme)
 
   if (!TryConnectOrdered())
   {
-    Serial.println("Restart ESP");
+    _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
 }
@@ -305,49 +331,49 @@ void HAS2_Wifi::Connect(String theme)
  */
 void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 {
-  Serial.print("SSID : ");
-  Serial.println((const char *)new_ssid);
+  _has2DebugPrint->print("SSID : ");
+  _has2DebugPrint->println((const char *)new_ssid);
   my_mac = WiFi.macAddress();
-  Serial.print("MY MAC=");
-  Serial.println(my_mac);
+  _has2DebugPrint->print("MY MAC=");
+  _has2DebugPrint->println(my_mac);
 
   if (!TryConnect((const char *)new_ssid, (const char *)new_password, WIFI_CONNECT_TIMEOUT_MS))
   {
-    Serial.println("Restart ESP");
+    _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
   delay(1000);
 
   my_mac = WiFi.macAddress();
-  Serial.print("MY MAC=");
-  Serial.println(my_mac);
+  _has2DebugPrint->print("MY MAC=");
+  _has2DebugPrint->println(my_mac);
 
   ReceiveMine();
 
-  Serial.print("DeviceName : ");
-  Serial.println((const char *)my["device_name"]);
+  _has2DebugPrint->print("DeviceName : ");
+  _has2DebugPrint->println((const char *)my["device_name"]);
 }
 
 void HAS2_Wifi::Setup(String theme)
 {
-  Serial.print("WiFi theme: ");
-  Serial.println(theme);
+  _has2DebugPrint->print("WiFi theme: ");
+  _has2DebugPrint->println(theme);
 
   if (!TryConnectSaved() && !TryConnectOrdered())
   {
-    Serial.println("Restart ESP");
+    _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
   delay(1000);
 
   my_mac = WiFi.macAddress();
-  Serial.print("MY MAC=");
-  Serial.println(my_mac);
+  _has2DebugPrint->print("MY MAC=");
+  _has2DebugPrint->println(my_mac);
 
   ReceiveMine();
 
-  Serial.print("DeviceName : ");
-  Serial.println((const char *)my["device_name"]);
+  _has2DebugPrint->print("DeviceName : ");
+  _has2DebugPrint->println((const char *)my["device_name"]);
 }
 /**
  * @brief 다른 장치의 데이터를 읽음
@@ -478,7 +504,7 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
       String payload = http.getString();
       if (request != "Loop")
       {
-        Serial.println(payload);
+        _has2DebugPrint->println(payload);
       }
       if (request != "Send")
       {
@@ -487,21 +513,21 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
     }
     else
     {
-      Serial.printf("HTTP GET... code: %d\n", httpcode);
+      _has2DebugPrint->printf("HTTP GET... code: %d\n", httpcode);
     }
   }
   else
   {
-    Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    _has2DebugPrint->printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
     // if(httpRequestCnt < 2){
-    //   Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
-    //   Serial.printf("Rerequest count: %d\n",httpRequestCnt);
+    //   _has2DebugPrint->printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    //   _has2DebugPrint->printf("Rerequest count: %d\n",httpRequestCnt);
     //   httpRequestCnt++;
     //   goto ReRequsetHttp;
     // }
     // else{
-    //   Serial.printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
-    //   Serial.printf("Maximum request exceed!");
+    //   _has2DebugPrint->printf("HTTP GET... failed, error: %s\n", http.errorToString(httpcode).c_str());
+    //   _has2DebugPrint->printf("Maximum request exceed!");
     // }
   }
   http.end();
@@ -520,8 +546,8 @@ void HAS2_Wifi::JsonParsing(String request, String json)
     auto error = deserializeJson(shift_machine, json);
     if (error)
     {
-      Serial.print(F("deserializeJson() failed with code "));
-      Serial.println(error.c_str());
+      _has2DebugPrint->print(F("deserializeJson() failed with code "));
+      _has2DebugPrint->println(error.c_str());
     }
   }
   else if (request == "ReceiveMine")
@@ -529,8 +555,8 @@ void HAS2_Wifi::JsonParsing(String request, String json)
     auto error = deserializeJson(my, json);
     if (error)
     {
-      Serial.print(F("deserializeJson() failed with code "));
-      Serial.println(error.c_str());
+      _has2DebugPrint->print(F("deserializeJson() failed with code "));
+      _has2DebugPrint->println(error.c_str());
     }
   }
   else if (request == "Receive")
@@ -538,8 +564,8 @@ void HAS2_Wifi::JsonParsing(String request, String json)
     auto error = deserializeJson(tag, json);
     if (error)
     {
-      Serial.print(F("deserializeJson() failed with code "));
-      Serial.println(error.c_str());
+      _has2DebugPrint->print(F("deserializeJson() failed with code "));
+      _has2DebugPrint->println(error.c_str());
     }
   }
 }
@@ -554,45 +580,45 @@ void HAS2_Wifi::FirmwareUpdate(String device_type, String ip_address)
   httpUpdate.onError(update_error);
 
   String bin_file_name = "/" + device_type + ".bin";
-  Serial.println(bin_file_name);
+  _has2DebugPrint->println(bin_file_name);
   t_httpUpdate_return ret = httpUpdate.update(client, ip_address, 80, bin_file_name);
 
   switch (ret)
   {
   case HTTP_UPDATE_FAILED:
-    Serial.printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+    _has2DebugPrint->printf("HTTP_UPDATE_FAILED Error (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
     break;
 
   case HTTP_UPDATE_NO_UPDATES:
-    Serial.println("HTTP_UPDATE_NO_UPDATES");
+    _has2DebugPrint->println("HTTP_UPDATE_NO_UPDATES");
     break;
 
   case HTTP_UPDATE_OK:
-    Serial.println("HTTP_UPDATE_OK");
+    _has2DebugPrint->println("HTTP_UPDATE_OK");
     break;
   }
 }
 
 void update_started()
 {
-  Serial.println("CALLBACK:  HTTP update process started");
+  _has2DebugPrint->println("CALLBACK:  HTTP update process started");
 }
 
 void update_finished()
 {
   HAS2_Wifi has2_wifi(_activeHost);
   has2_wifi.Send((String)(const char *)my["device_name"], "device_state", "setting");
-  Serial.println("CALLBACK:  HTTP update process finished");
+  _has2DebugPrint->println("CALLBACK:  HTTP update process finished");
 }
 
 void update_progress(int cur, int total)
 {
-  Serial.printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
+  _has2DebugPrint->printf("CALLBACK:  HTTP update process at %d of %d bytes...\n", cur, total);
 }
 
 void update_error(int err)
 {
-  Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
+  _has2DebugPrint->printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
 // 전역변수 선언

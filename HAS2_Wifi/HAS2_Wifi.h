@@ -77,6 +77,8 @@ public:
     // HAS2_Wifi(String php);
     HAS2_Wifi(String host, String php = "/has2.php");
 
+    void SetDebugPrint(Print *debugPrint);
+
     void Setup();
     void Setup(char *new_ssid, char *new_password);
     void Setup(String theme);
