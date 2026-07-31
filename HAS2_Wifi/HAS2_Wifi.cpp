@@ -332,6 +332,9 @@ void HAS2_Wifi::Setup()
 void HAS2_Wifi::Connect(String theme)
 {
   _theme = theme;
+  HOST_NAME = (_theme == "city") ? "http://172.30.1.44" : "http://172.30.1.43";
+  _activeHost = HOST_NAME;
+  server = HOST_NAME + PHP_FILE_NAME;
   if (WiFi.status() == WL_CONNECTED)
   {
     return;
@@ -376,6 +379,9 @@ void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 void HAS2_Wifi::Setup(String theme)
 {
   _theme = theme;
+  HOST_NAME = (_theme == "city") ? "http://172.30.1.44" : "http://172.30.1.43";
+  _activeHost = HOST_NAME;
+  server = HOST_NAME + PHP_FILE_NAME;
   _has2DebugPrint->print("WiFi theme: ");
   _has2DebugPrint->println(theme);
 
