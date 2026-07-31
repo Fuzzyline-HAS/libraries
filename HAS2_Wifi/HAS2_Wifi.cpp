@@ -13,7 +13,7 @@
 
 static String _activeHost = "http://172.30.1.43";
 static Print *_has2DebugPrint = &Serial;
-static const int BADLAND_WIFI_COUNT = 3;
+static const int WIFI_COUNT = 3;
 static const int WIFI_MIN_RSSI = -70;
 static const unsigned long WIFI_SCAN_INTERVAL_MS = 60000;
 static const unsigned long WIFI_CONNECT_TIMEOUT_MS = 3000;
@@ -21,10 +21,16 @@ static const char *WIFI_PREF_NAMESPACE = "has2wifi";
 static const char *WIFI_PREF_SSID = "last_ssid";
 static const char *WIFI_PREF_PASSWORD = "last_pw";
 
-static HAS2_WifiCandidate badland_wifi_candidates[BADLAND_WIFI_COUNT] = {
+static HAS2_WifiCandidate badland_wifi_candidates[WIFI_COUNT] = {
     {"badland_ruins", "Code3824@", -127, -127.0f, 0, 0},
-    {"badland_auto", "Code3824@", -127, -127.0f, 0, 0},
+    {"badland_auto",  "Code3824@", -127, -127.0f, 0, 0},
     {"badland_shoot", "Code3824@", -127, -127.0f, 0, 0},
+};
+
+static HAS2_WifiCandidate city_wifi_candidates[WIFI_COUNT] = {
+    {"bar",    "Code3824@", -127, -127.0f, 0, 0},
+    {"office", "Code3824@", -127, -127.0f, 0, 0},
+    {"gun",    "Code3824@", -127, -127.0f, 0, 0},
 };
 
 static void HAS2DebugPrintf(const char *format, ...)
@@ -60,6 +66,7 @@ HAS2_Wifi::HAS2_Wifi()
     : HOST_NAME("http://172.30.1.43"),
       PHP_FILE_NAME("/has2.php"),
       server(HOST_NAME + PHP_FILE_NAME),
+      _theme("badland"),
       lastWifiScanMs(0),
       wifiCandidatesInitialized(false)
 {
@@ -87,6 +94,7 @@ HAS2_Wifi::HAS2_Wifi(String host, String php)
     : HOST_NAME(host),
       PHP_FILE_NAME(php),
       server(HOST_NAME + PHP_FILE_NAME),
+      _theme("badland"),
       lastWifiScanMs(0),
       wifiCandidatesInitialized(false)
 {
@@ -100,17 +108,22 @@ void HAS2_Wifi::EnsureWifiCandidatesInitialized()
     return;
   }
 
-  for (int i = 0; i < BADLAND_WIFI_COUNT; i++)
+  for (int i = 0; i < WIFI_COUNT; i++)
   {
     badland_wifi_candidates[i].lastRssi = -127;
     badland_wifi_candidates[i].avgRssi = -127.0f;
     badland_wifi_candidates[i].seenCount = 0;
     badland_wifi_candidates[i].lastSeenMs = 0;
+
+    city_wifi_candidates[i].lastRssi = -127;
+    city_wifi_candidates[i].avgRssi = -127.0f;
+    city_wifi_candidates[i].seenCount = 0;
+    city_wifi_candidates[i].lastSeenMs = 0;
   }
   wifiCandidatesInitialized = true;
 }
 
-void HAS2_Wifi::ScanBadlandNetworks(bool force)
+void HAS2_Wifi::ScanNetworks(bool force)
 {
   EnsureWifiCandidatesInitialized();
   WiFi.mode(WIFI_STA);
@@ -121,6 +134,8 @@ void HAS2_Wifi::ScanBadlandNetworks(bool force)
     return;
   }
   lastWifiScanMs = now;
+
+  HAS2_WifiCandidate *candidates = (_theme == "city") ? city_wifi_candidates : badland_wifi_candidates;
 
   int network_count = WiFi.scanNetworks();
   if (network_count < 0)
@@ -134,9 +149,9 @@ void HAS2_Wifi::ScanBadlandNetworks(bool force)
     String found_ssid = WiFi.SSID(i);
     int found_rssi = WiFi.RSSI(i);
 
-    for (int candidate_index = 0; candidate_index < BADLAND_WIFI_COUNT; candidate_index++)
+    for (int candidate_index = 0; candidate_index < WIFI_COUNT; candidate_index++)
     {
-      HAS2_WifiCandidate &candidate = badland_wifi_candidates[candidate_index];
+      HAS2_WifiCandidate &candidate = candidates[candidate_index];
       if (found_ssid == candidate.ssid)
       {
         candidate.lastRssi = found_rssi;
@@ -147,26 +162,26 @@ void HAS2_Wifi::ScanBadlandNetworks(bool force)
     }
   }
 
-  for (int i = 0; i < BADLAND_WIFI_COUNT - 1; i++)
+  for (int i = 0; i < WIFI_COUNT - 1; i++)
   {
-    for (int j = i + 1; j < BADLAND_WIFI_COUNT; j++)
+    for (int j = i + 1; j < WIFI_COUNT; j++)
     {
       bool should_swap = false;
-      if (badland_wifi_candidates[j].seenCount > 0 && badland_wifi_candidates[i].seenCount == 0)
+      if (candidates[j].seenCount > 0 && candidates[i].seenCount == 0)
       {
         should_swap = true;
       }
-      else if (badland_wifi_candidates[j].seenCount > 0 && badland_wifi_candidates[i].seenCount > 0 &&
-               badland_wifi_candidates[j].avgRssi > badland_wifi_candidates[i].avgRssi)
+      else if (candidates[j].seenCount > 0 && candidates[i].seenCount > 0 &&
+               candidates[j].avgRssi > candidates[i].avgRssi)
       {
         should_swap = true;
       }
 
       if (should_swap)
       {
-        HAS2_WifiCandidate temp = badland_wifi_candidates[i];
-        badland_wifi_candidates[i] = badland_wifi_candidates[j];
-        badland_wifi_candidates[j] = temp;
+        HAS2_WifiCandidate temp = candidates[i];
+        candidates[i] = candidates[j];
+        candidates[j] = temp;
       }
     }
   }
@@ -205,11 +220,13 @@ bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsig
 
 bool HAS2_Wifi::TryConnectOrdered()
 {
-  ScanBadlandNetworks(true);
+  ScanNetworks(true);
 
-  for (int i = 0; i < BADLAND_WIFI_COUNT; i++)
+  HAS2_WifiCandidate *candidates = (_theme == "city") ? city_wifi_candidates : badland_wifi_candidates;
+
+  for (int i = 0; i < WIFI_COUNT; i++)
   {
-    HAS2_WifiCandidate &candidate = badland_wifi_candidates[i];
+    HAS2_WifiCandidate &candidate = candidates[i];
     if (candidate.seenCount == 0 || candidate.lastSeenMs < lastWifiScanMs)
     {
       _has2DebugPrint->print("Skip unseen WiFi: ");
@@ -262,13 +279,14 @@ void HAS2_Wifi::SaveLastWifi(const char *new_ssid, const char *new_password)
 
 void HAS2_Wifi::MaintainWifi()
 {
-  ScanBadlandNetworks(false);
-
+  // 연결 중일 때는 블로킹 스캔 건너뜀 (WiFi.scanNetworks()는 2~4초 loop 정지)
   if (WiFi.status() == WL_CONNECTED)
   {
     return;
   }
 
+  // 끊겼을 때만 스캔 후 재연결
+  ScanNetworks(true);
   _has2DebugPrint->println("WiFi disconnected. Reconnecting...");
   if (!TryConnectOrdered())
   {
@@ -313,6 +331,7 @@ void HAS2_Wifi::Setup()
 
 void HAS2_Wifi::Connect(String theme)
 {
+  _theme = theme;
   if (WiFi.status() == WL_CONNECTED)
   {
     return;
@@ -356,6 +375,7 @@ void HAS2_Wifi::Setup(char *new_ssid, char *new_password)
 
 void HAS2_Wifi::Setup(String theme)
 {
+  _theme = theme;
   _has2DebugPrint->print("WiFi theme: ");
   _has2DebugPrint->println(theme);
 
@@ -417,11 +437,11 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
  * @param affected_device_name 영향을 받는 장치
  * @param situation  상황
  */
-void HAS2_Wifi::Situation(String affected_device_name, String situation)
+bool HAS2_Wifi::Situation(String affected_device_name, String situation)
 {
   String my_device_name = (String)(const char *)my["device_name"];
   String string_request = server + "?request=" + "Situation" + "&table=" + situation + "&key=" + my_device_name + "&value=" + affected_device_name;
-  HttpRequest("Send", string_request);
+  return HttpRequest("Send", string_request);
 }
 
 /**
@@ -488,7 +508,7 @@ void HAS2_Wifi::Loop(void (*Func)(void))
  * @param request 원하는 명령
  * @param string_request Http에게 보내는 형식 문자열
  */
-void HAS2_Wifi::HttpRequest(String request, String string_request)
+bool HAS2_Wifi::HttpRequest(String request, String string_request)
 {
   //   int httpRequestCnt = 0;
   // ReRequsetHttp:
@@ -496,6 +516,7 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
   http.begin(string_request); // 요청을 PHP로 전송
 
   int httpcode = http.GET();
+  bool ok = false;
 
   if (httpcode > 0)
   {
@@ -510,6 +531,7 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
       {
         JsonParsing(request, payload);
       }
+      ok = true;
     }
     else
     {
@@ -531,6 +553,7 @@ void HAS2_Wifi::HttpRequest(String request, String string_request)
     // }
   }
   http.end();
+  return ok;
 }
 
 /**

@@ -61,10 +61,12 @@ private:
 
     friend class HTTPUpdate;
 
-    void HttpRequest(String request, String string_request);
+    String _theme;
+
+    bool HttpRequest(String request, String string_request);
     void JsonParsing(String request, String json);
     void EnsureWifiCandidatesInitialized();
-    void ScanBadlandNetworks(bool force = false);
+    void ScanNetworks(bool force = false);
     bool TryConnect(const char *new_ssid, const char *new_password, unsigned long timeoutMs = 3000);
     bool TryConnectOrdered();
     bool TryConnectSaved();
@@ -87,7 +89,7 @@ public:
     void ReceiveMP3(String device_name, int value);
     void ReceiveMine();
     void Send(String device_name, String column, String value);
-    void Situation(String affected_device_name, String situation);
+    bool Situation(String affected_device_name, String situation);
     void Loop();
     void Loop(void (*Func)(void));
     void FirmwareUpdate(String device_type, String ip_address = "172.30.1.43");
