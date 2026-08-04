@@ -704,7 +704,7 @@ void update_error(int err)
 
 // 전역변수 선언
 HTTPClient http;
-StaticJsonDocument<100> shift_machine;
-StaticJsonDocument<1000> my;
-StaticJsonDocument<1000> tag;
-StaticJsonDocument<500> skill;
+StaticJsonDocument<512> shift_machine;
+StaticJsonDocument<2048> my;
+StaticJsonDocument<2048> tag;
+StaticJsonDocument<1024> skill;
