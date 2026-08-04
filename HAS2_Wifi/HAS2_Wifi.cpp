@@ -494,11 +494,12 @@ void HAS2_Wifi::Send(String device_name, String column, String value)
  *
  * @param affected_device_name 영향을 받는 장치
  * @param situation  상황
+ * @param key_device 키로 사용할 장치. 생략하면 자신의 장치 이름 사용
  */
-bool HAS2_Wifi::Situation(String affected_device_name, String situation)
+bool HAS2_Wifi::Situation(String affected_device_name, String situation, String key_device)
 {
-  String my_device_name = (String)(const char *)my["device_name"];
-  String string_request = server + "?request=" + "Situation" + "&table=" + situation + "&key=" + my_device_name + "&value=" + affected_device_name;
+  String key = key_device.length() ? key_device : (String)(const char *)my["device_name"];
+  String string_request = server + "?request=" + "Situation" + "&table=" + situation + "&key=" + key + "&value=" + affected_device_name;
   return HttpRequest("Send", string_request);
 }
 
