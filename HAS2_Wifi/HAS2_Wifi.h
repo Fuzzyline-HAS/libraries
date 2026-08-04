@@ -27,10 +27,10 @@ void update_error(int err);
 
 // 전역변수를 main 파일에서 사용할 수 있게 extern 선언
 extern HTTPClient http;
-extern StaticJsonDocument<100> shift_machine;
-extern StaticJsonDocument<1000> my;
-extern StaticJsonDocument<1000> tag;
-extern StaticJsonDocument<500> skill;
+extern StaticJsonDocument<512> shift_machine;
+extern StaticJsonDocument<2048> my;
+extern StaticJsonDocument<2048> tag;
+extern StaticJsonDocument<1024> skill;
 
 typedef struct HAS2_WifiCandidate
 {
