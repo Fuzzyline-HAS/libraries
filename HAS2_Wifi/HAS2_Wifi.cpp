@@ -194,9 +194,22 @@ bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsig
   _has2DebugPrint->print("Try WiFi: ");
   _has2DebugPrint->println(new_ssid);
 
+  // ESP-IDF가 NVS에 저장된 이전 접속정보로 백그라운드 자동 재연결을 시도하는 동안
+  // WiFi.begin()이 호출되면 "sta is connecting, cannot set config" 에러와 함께
+  // 연결이 계속 실패하는 문제가 있어 persistent/autoReconnect를 끔
+  WiFi.persistent(false);
+  WiFi.setAutoReconnect(false);
   WiFi.mode(WIFI_STA);
-  WiFi.disconnect(true);
-  delay(100);
+  WiFi.disconnect(true, true);
+
+  // disconnect가 비동기라 곧바로 begin()을 호출하면 "sta is connecting" 상태와
+  // 충돌할 수 있으므로 실제로 끊어질 때까지 짧게 대기
+  unsigned long disconnect_started_ms = millis();
+  while (WiFi.status() != WL_DISCONNECTED && millis() - disconnect_started_ms < 1000)
+  {
+    delay(20);
+  }
+
   WiFi.begin(new_ssid, new_password);
 
   unsigned long started_ms = millis();
@@ -293,6 +306,35 @@ void HAS2_Wifi::MaintainWifi()
     _has2DebugPrint->println("Restart ESP");
     ESP.restart();
   }
+}
+
+/**
+ * @brief 현재 연결된 WiFi의 SSID 이름을 반환
+ *
+ * @return String 연결되어 있지 않으면 빈 문자열
+ */
+String HAS2_Wifi::GetConnectedSSID()
+{
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    return "";
+  }
+  return WiFi.SSID();
+}
+
+/**
+ * @brief 현재 연결된 WiFi의 SSID 이름을 디버그 출력으로 표시
+ *
+ */
+void HAS2_Wifi::PrintConnectedSSID()
+{
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    _has2DebugPrint->println("WiFi not connected");
+    return;
+  }
+  _has2DebugPrint->print("Connected SSID: ");
+  _has2DebugPrint->println(WiFi.SSID());
 }
 
 void HAS2_Wifi::PrintConnectedWifi()
