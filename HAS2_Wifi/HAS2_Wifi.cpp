@@ -227,6 +227,16 @@ bool HAS2_Wifi::TryConnect(const char *new_ssid, const char *new_password, unsig
     return true;
   }
 
+  // 실패한 연결 시도를 정리하지 않으면 STA가 connecting 상태로 남아
+  // 이어지는 ScanNetworks()의 WiFi.scanNetworks()가 음수를 반환한다("WiFi scan failed").
+  // begin() 앞의 teardown과 동일한 처리를 실패 경로에도 적용.
+  WiFi.disconnect(true, true);
+  unsigned long teardown_started_ms = millis();
+  while (WiFi.status() != WL_DISCONNECTED && millis() - teardown_started_ms < 1000)
+  {
+    delay(20);
+  }
+
   _has2DebugPrint->println("WiFi connect failed");
   return false;
 }
